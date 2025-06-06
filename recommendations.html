@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriPro - Get Recommendations</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">NutriPro</div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="recommendations.html">Get Recommendations</a></li>
+                    <li><a href="#contacts">Contacts</a></li> </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="recommendations-page-content">
+        <div class="container recommendations-content-wrapper"> <section class="input-form-section">
+                <h2>Get Your Personalized Meal Plan</h2>
+                <p>Enter your blood sugar levels and desired meal type to get recommendations.</p>
+
+                <form id="recommendationForm" class="recommendation-form">
+                    <div class="form-group">
+                        <label for="fbs_level">Fasting Blood Sugar (FBS) (mg/dL):</label>
+                        <input type="number" id="fbs_level" name="fbs_level" placeholder="e.g., 90">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rbs_level">Random Blood Sugar (RBS) (mg/dL):</label>
+                        <input type="number" id="rbs_level" name="rbs_level" placeholder="e.g., 120">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="meal_type">Meal Type:</label>
+                        <select id="meal_type" name="meal_type" required>
+                            <option value="breakfast">Breakfast</option>
+                            <option value="lunch" selected>Lunch</option>
+                            <option value="dinner">Dinner</option>
+                            <option value="snack">Snack</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="num_alternatives">Number of Foods per Category:</label>
+                        <input type="number" id="num_alternatives" name="num_alternatives_per_slot" value="1" min="1" max="5">
+                    </div>
+
+                    <button type="submit" class="btn-primary">Get Meals!</button>
+                </form>
+
+                <div id="recommendationsOutput" class="recommendations-output">
+                    </div>
+                <div id="errorMessage" class="error-message"></div>
+            </section>
+
+
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; 2025 NutriPro. All rights reserved.</p>
+            <div class="footer-social-icons">
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+    </footer>
+
+
+    <script>
+        document.getElementById('recommendationForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const fbsLevel = document.getElementById('fbs_level').value;
+            const rbsLevel = document.getElementById('rbs_level').value;
+            const mealType = document.getElementById('meal_type').value;
+            const numAlternatives = document.getElementById('num_alternatives').value;
+
+            const outputDiv = document.getElementById('recommendationsOutput');
+            const errorDiv = document.getElementById('errorMessage');
+            outputDiv.innerHTML = ''; // Clear previous recommendations
+            errorDiv.innerHTML = '';   // Clear previous errors
+            errorDiv.style.display = 'none';
+
+            let queryParams = [];
+            if (fbsLevel) {
+                queryParams.push(`fbs_level=${fbsLevel}`);
+            }
+            if (rbsLevel) {
+                queryParams.push(`rbs_level=${rbsLevel}`);
+            }
+            queryParams.push(`meal_type=${mealType}`);
+            queryParams.push(`num_alternatives_per_slot=${numAlternatives}`);
+
+            const apiUrl = `http://127.0.0.1:8000/recommend_meal?${queryParams.join('&')}`;
+
+            try {
+                const response = await fetch(apiUrl);
+
+                if (!response.ok) {
+                    // If response is not 2xx, throw an error
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+                }
+
+                const recommendations = await response.json();
+
+                if (recommendations.length > 0) {
+                    const ul = document.createElement('ul');
+                    recommendations.forEach(rec => {
+                        const li = document.createElement('li');
+                        li.textContent = rec;
+                        ul.appendChild(li);
+                    });
+                    outputDiv.appendChild(ul);
+                } else {
+                    outputDiv.textContent = "No specific recommendations found. Try adjusting your inputs.";
+                }
+
+            } catch (error) {
+                console.error('Error fetching recommendations:', error);
+                errorDiv.textContent = `Error: ${error.message}. Please try again or check server logs.`;
+                errorDiv.style.display = 'block';
+            }
+        });
+    </script>
+
+</body>
+</html>
