@@ -37,7 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
             queryParams.push(`meal_type=${mealType}`);
             queryParams.push(`num_alternatives_per_slot=${numAlternativesPerSlot}`);
 
-            const apiUrl = `http://127.0.0.1:8000/recommend_meal?${queryParams.join('&')}`;
+            //const apiUrl = `http://127.0.0.1:8000/recommend_meal?${queryParams.join('&')}`;
+            const API_BASE_URL = "https://nutriapp-backend-mnnq.onrender.com"; // Your Render API URL
+            const apiUrl = `${API_BASE_URL}/recommend_meal?${queryParams.join('&')}`;
 
             const response = await fetch(apiUrl);
 
