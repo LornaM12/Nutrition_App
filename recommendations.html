@@ -102,7 +102,9 @@
             queryParams.push(`meal_type=${mealType}`);
             queryParams.push(`num_alternatives_per_slot=${numAlternatives}`);
 
-            const apiUrl = `http://127.0.0.1:8000/recommend_meal?${queryParams.join('&')}`;
+            
+            const API_BASE_URL = "https://nutriapp-backend-mnnq.onrender.com"; // Your Render API URL
+            const apiUrl = `<span class="math-inline">\{API\_BASE\_URL\}/recommend\_meal?</span>{queryParams.join('&')}`;
 
             try {
                 const response = await fetch(apiUrl);
