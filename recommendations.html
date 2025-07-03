@@ -17,13 +17,15 @@
                 <ul>
                     <li><a href="index.html">Home</a></li>
                     <li><a href="recommendations.html">Get Recommendations</a></li>
-                    <li><a href="#contacts">Contacts</a></li> </ul>
+                    <li><a href="contacts.html">Contacts</a></li>
+                </ul>
             </nav>
         </div>
     </header>
 
     <main class="recommendations-page-content">
-        <div class="container recommendations-content-wrapper"> <section class="input-form-section">
+        <div class="container recommendations-content-wrapper">
+            <section class="input-form-section">
                 <h2>Get Your Personalized Meal Plan</h2>
                 <p>Enter your blood sugar levels and desired meal type to get recommendations.</p>
 
@@ -56,11 +58,17 @@
                     <button type="submit" class="btn-primary">Get Meals!</button>
                 </form>
 
-                <div id="recommendationsOutput" class="recommendations-output">
-                    </div>
+                <div id="recommendationsOutput" class="recommendations-output"></div>
                 <div id="errorMessage" class="error-message"></div>
-            </section>
+                <div id="loadingMessage" class="loading-message" style="display:none;">Loading recommendations...</div>
+                <div id="noRecommendationsMessage" class="no-recommendations-message" style="display:none;">No specific recommendations found. Try adjusting your inputs.</div>
 
+                <!-- NEW: Mobile-specific feedback button, hidden on desktop/tablet by CSS -->
+                <div id="feedbackTriggerMobile" class="feedback-trigger feedback-trigger-mobile">
+                    <i class="fas fa-external-link-alt"></i> Share your feedback with us
+                </div>
+
+            </section>
 
         </div>
     </main>
@@ -68,75 +76,60 @@
     <footer class="main-footer">
         <div class="container">
             <p>&copy; 2025 NutriApp. All rights reserved.</p>
-            <div class="footer-social-icons">
+            <!--<div class="footer-social-icons">
                 <a href="#"><i class="fab fa-facebook"></i></a>
                 <a href="#"><i class="fab fa-instagram"></i></a>
-                <a href="#"><i class="fab fa-youtube"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a> -->
             </div>
         </div>
     </footer>
 
+    <!-- DESKTOP/TABLET FEEDBACK TRIGGER BUTTON - Hidden on mobile by CSS -->
+    <div id="feedbackTriggerDesktop" class="feedback-trigger feedback-trigger-desktop">
+        <i class="fas fa-external-link-alt"></i> Share your feedback with us
+    </div>
 
-    <script>
-        document.getElementById('recommendationForm').addEventListener('submit', async function(event) {
-            event.preventDefault(); // Prevent default form submission
+    <!-- NEW FEEDBACK MODAL STRUCTURE -->
+    <div id="feedbackModal" class="feedback-modal">
+        <div class="feedback-modal-content">
+            <span class="close-button" id="closeFeedbackModal">&times;</span>
+            <!-- The original feedback section content goes here -->
+            <!-- REMOVED 'input-form-section' class from feedback-section to prevent overlap -->
+            <section class="feedback-section">
+                <h2>Share Your Feedback</h2>
+                <p>Help us improve! What do you think about NutriApp?</p>
+                <form id="feedbackForm" class="feedback-form">
+                    <div class="form-group">
+                        <label for="rating">Overall Rating:</label>
+                        <div class="rating-stars" id="ratingStars">
+                            <i class="far fa-star" data-value="1"></i>
+                            <i class="far fa-star" data-value="2"></i>
+                            <i class="far fa-star" data-value="3"></i>
+                            <i class="far fa-star" data-value="4"></i>
+                            <i class="far fa-star" data-value="5"></i>
+                        </div>
+                        <input type="hidden" id="rating" name="rating" value="0" required>
+                    </div>
 
-            const fbsLevel = document.getElementById('fbs_level').value;
-            const rbsLevel = document.getElementById('rbs_level').value;
-            const mealType = document.getElementById('meal_type').value;
-            const numAlternatives = document.getElementById('num_alternatives').value;
+                    <div class="form-group">
+                        <label for="feedback_text">Your Comments:</label>
+                        <textarea id="feedback_text" name="feedback_text" rows="5" placeholder="Tell us what you liked or what can be improved..."></textarea>
+                    </div>
 
-            const outputDiv = document.getElementById('recommendationsOutput');
-            const errorDiv = document.getElementById('errorMessage');
-            outputDiv.innerHTML = ''; // Clear previous recommendations
-            errorDiv.innerHTML = '';   // Clear previous errors
-            errorDiv.style.display = 'none';
+                    <div class="form-group">
+                        <label for="contact_email">Your Email (Optional):</label>
+                        <input type="email" id="contact_email" name="contact_email" placeholder="email@example.com">
+                    </div>
 
-            let queryParams = [];
-            if (fbsLevel) {
-                queryParams.push(`fbs_level=${fbsLevel}`);
-            }
-            if (rbsLevel) {
-                queryParams.push(`rbs_level=${rbsLevel}`);
-            }
-            queryParams.push(`meal_type=${mealType}`);
-            queryParams.push(`num_alternatives_per_slot=${numAlternatives}`);
+                    <button type="submit" class="btn-primary">Submit Feedback</button>
+                </form>
+                <div id="feedbackMessage" class="feedback-message"></div>
+                <div id="feedbackErrorMessage" class="error-message"></div>
+            </section>
+        </div>
+    </div>
 
-
-            const API_BASE_URL = "https://nutriapp-backend-mnnq.onrender.com"; // Your Render API URL
-            const apiUrl = `${API_BASE_URL}/recommend_meal?${queryParams.join('&')}`;
-
-
-            try {
-                const response = await fetch(apiUrl);
-
-                if (!response.ok) {
-                    // If response is not 2xx, throw an error
-                    const errorData = await response.json();
-                    throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
-                }
-
-                const recommendations = await response.json();
-
-                if (recommendations.length > 0) {
-                    const ul = document.createElement('ul');
-                    recommendations.forEach(rec => {
-                        const li = document.createElement('li');
-                        li.textContent = rec;
-                        ul.appendChild(li);
-                    });
-                    outputDiv.appendChild(ul);
-                } else {
-                    outputDiv.textContent = "No specific recommendations found. Try adjusting your inputs.";
-                }
-
-            } catch (error) {
-                console.error('Error fetching recommendations:', error);
-                errorDiv.textContent = `Error: ${error.message}. Please try again or check server logs.`;
-                errorDiv.style.display = 'block';
-            }
-        });
-    </script>
+    <script src="script.js"></script>
 
 </body>
 </html>

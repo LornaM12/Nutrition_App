@@ -1,0 +1,74 @@
+/* --- Contact Page Specific Styles --- */
+.contact-page-content {
+    background-color: #F0FFF0; /* Consistent with recommendations page */
+    padding: 60px 0;
+    min-height: calc(100vh - 100px); /* Ensure it takes up vertical space */
+    display: flex; /* Make it a flex container */
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */
+}
+
+.contact-content-wrapper {
+    display: flex; /* Make it a flex container */
+    justify-content: center; /* Center its children horizontally */
+    align-items: stretch; /* Stretch children to fill height, useful for cards */
+    gap: 40px; /* Space between items if more are added */
+    flex-wrap: nowrap; /* Prevent wrapping initially */
+    width: 100%; /* Take full width of its parent container */
+}
+
+.contact-info-section {
+    /* Inherits most styles from .input-form-section */
+    /* Ensure it's centered within its flex container */
+    margin: 0 auto; /* This will center it if it's a block element or flex item with defined width/max-width */
+}
+
+.contact-info-section h2 {
+    /* Ensure consistent heading style for this section */
+    color: #333;
+    font-size: 2.2em;
+    margin-bottom: 15px;
+}
+
+.contact-info-section p {
+    /* Ensure consistent paragraph style for this section */
+    color: #666;
+    font-size: 1.05em;
+    margin-bottom: 30px;
+}
+
+.contact-info {
+    margin-top: 30px;
+    text-align: left;
+    font-size: 1.15em; /* Slightly increased font size */
+    color: #555;
+}
+
+.contact-info h3 {
+    font-size: 1.3em; /* Added specific style for h3 if used within contact-info */
+    color: #333;
+    margin-bottom: 20px; /* Added margin for better spacing */
+}
+
+.contact-info p {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    line-height: 1.5; /* Added line height for readability */
+}
+
+.contact-info p i {
+    color: #4CAF50; /* Green icon color */
+    font-size: 1.3em; /* Slightly increased icon size */
+}
+
+.contact-info a {
+    color: #FF8C00; /* Orange link color */
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.contact-info a:hover {
+    text-decoration: underline;
+}

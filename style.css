@@ -13,6 +13,11 @@ body {
     overflow-x: hidden; /* Crucial to prevent horizontal scroll from background elements */
 }
 
+/* Universal box-sizing for consistent layout */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 /* Container for consistent content width */
 .container {
     width: 90%;
@@ -150,7 +155,8 @@ body {
 }
 
 .app-title {
-    font-size: 3.5em;
+    font-size: 1.5em;
+    text-align: justify;
     font-weight: 700;
     color: #333;
     margin-bottom: 10px;
@@ -168,6 +174,7 @@ body {
     color: #666;
     margin-bottom: 40px;
     line-height: 1.8;
+    text-align: justify;
 }
 
 /* Hero Image Styles  */
@@ -238,21 +245,20 @@ body {
     justify-content: center;
     align-items: stretch;
     gap: 40px;
-    flex-wrap: nowrap;
+    flex-wrap: nowrap; /* Prevents wrapping until media query */
     width: 100%;
 }
 
-.input-form-section {
+.input-form-section { /* Reused for feedback form */
     background-color: #FFFFFF;
     padding: 40px;
     border-radius: 10px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    /* flex-basis controls starting size, flex-grow/shrink determines how they adapt */
-    flex: 1 1 500px;
+    flex: 1 1 500px; /* Allows flexibility, but with a preferred basis */
     max-width: 600px;
     text-align: center;
+    position: relative; /* Needed for absolute positioning of mobile feedback button if we go that route */
 }
-
 
 /* *** CRUCIAL CHANGES END HERE FOR HORIZONTAL LAYOUT *** */
 
@@ -269,7 +275,8 @@ body {
     margin-bottom: 30px;
 }
 
-.recommendation-form {
+.recommendation-form,
+.feedback-form { /* Apply to both forms */
     text-align: left;
 }
 
@@ -285,8 +292,10 @@ body {
 }
 
 .form-group input[type="number"],
-.form-group select {
-    width: calc(100% - 20px);
+.form-group select,
+.form-group input[type="email"], /* NEW: Email input style */
+.form-group textarea { /* NEW: Textarea style */
+    width: calc(100% - 20px); /* Adjust width to account for padding */
     padding: 12px 10px;
     border: 1px solid #D4ECCB;
     border-radius: 8px;
@@ -294,16 +303,20 @@ body {
     color: #333;
     background-color: #F8FFF0;
     transition: border-color 0.3s ease;
+    resize: vertical; /* Allow vertical resizing for textarea */
 }
 
 .form-group input[type="number"]:focus,
-.form-group select:focus {
+.form-group select:focus,
+.form-group input[type="email"]:focus, /* NEW: Email input focus style */
+.form-group textarea:focus { /* NEW: Textarea focus style */
     border-color: #FF8C00;
     outline: none;
     box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
 }
 
-.recommendation-form .btn-primary {
+.recommendation-form .btn-primary,
+.feedback-form .btn-primary { /* Apply to both form buttons */
     width: 100%;
     margin-top: 20px;
 }
@@ -321,6 +334,7 @@ body {
     align-items: center;
     justify-content: center;
     font-size: 1.1em;
+    flex-direction: column; /* Ensure content stacks if multiple elements are added */
 }
 
 .recommendations-output ul {
@@ -343,16 +357,199 @@ body {
     margin-bottom: 0;
 }
 
-.error-message {
-    color: #D32F2F;
-    background-color: #FFEBEE;
-    border: 1px solid #EF9A9A;
+/* NEW: Message Styles (loading, error, no recs, feedback success/error) */
+.loading-message,
+.no-recommendations-message,
+.feedback-message,
+.error-message { /* Error message already existed, but group for consistency */
     padding: 15px;
     margin-top: 20px;
     border-radius: 8px;
-    display: none;
     font-weight: 600;
     text-align: center;
+    display: none; /* Hidden by default, shown by JS */
+}
+
+.loading-message {
+    color: #4CAF50;
+    background-color: #E8F5E9;
+    border: 1px solid #A5D6A7;
+}
+
+.no-recommendations-message {
+    color: #555;
+    background-color: #FFFDE7;
+    border: 1px solid #FFE082;
+}
+
+.feedback-message { /* Success message for feedback */
+    color: #2E7D32;
+    background-color: #E8F5E9;
+    border: 1px solid #A5D6A7;
+}
+
+.error-message { /* Existing error message */
+    color: #D32F2F;
+    background-color: #FFEBEE;
+    border: 1px solid #EF9A9A;
+}
+
+
+/* NEW: Feedback Section & Star Rating Styles */
+/* This section is *inside* the feedback modal content */
+.feedback-section {
+    background-color: #FFFFFF; /* Explicitly set background */
+    padding: 30px; /* Consistent padding with modal content */
+    border-radius: 10px; /* Match modal content border-radius */
+    text-align: center; /* Center text within the form */
+    /* No box-shadow here, as it's on the modal content itself */
+    width: 100%; /* Ensure it takes full width of its parent */
+    box-sizing: border-box; /* Include padding in width */
+}
+
+
+.feedback-form {
+    /* Inherits from .recommendation-form */
+}
+
+.rating-stars {
+    font-size: 1.8em; /* Size of the stars */
+    color: #FFD700; /* Gold color for stars */
+    cursor: pointer;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    display: flex; /* Arrange stars horizontally */
+    justify-content: center; /* Center stars within their container */
+    gap: 5px; /* Space between stars */
+}
+
+.rating-stars .fa-star {
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.rating-stars .fa-star:hover {
+    transform: scale(1.1);
+}
+
+
+/* --- FEEDBACK TRIGGER BASE STYLES (Apply to both desktop and mobile versions) --- */
+/* These styles apply to both .feedback-trigger-mobile and .feedback-trigger-desktop */
+.feedback-trigger {
+    background-color: transparent;
+    color: #555;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: none;
+    font-weight: 600;
+    font-size: 1.0em;
+    display: flex; /* Always use flex for icon and text alignment */
+    align-items: center;
+    gap: 8px;
+    transition: color 0.3s ease, background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.feedback-trigger:hover {
+    color: #FF8C00;
+    background-color: rgba(255, 140, 0, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* --- FEEDBACK TRIGGER MOBILE-SPECIFIC STYLES --- */
+.feedback-trigger-mobile {
+    /* This button is specifically for mobile and will be placed within the content flow */
+    position: static; /* Flows with content */
+    margin: 20px auto; /* Center horizontally and add vertical spacing */
+    width: fit-content; /* Shrink to content size */
+    z-index: auto; /* Reset z-index */
+    display: none; /* Hidden by default, shown only on mobile */
+}
+
+/* --- FEEDBACK TRIGGER DESKTOP/TABLET-SPECIFIC STYLES --- */
+.feedback-trigger-desktop {
+    /* This button is specifically for desktop/tablet and will be fixed in the corner */
+    position: fixed; /* Fixed in the corner */
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000; /* Ensure it's above other content */
+    margin: 0; /* Remove any mobile-specific margins */
+    display: none; /* Hidden by default, shown only on desktop/tablet */
+}
+
+
+/* --- NEW FEEDBACK MODAL (The full feedback form container) --- */
+.feedback-modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1001; /* Higher than the trigger */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+}
+
+/* Class to show the modal */
+.feedback-modal.show-modal {
+    display: flex;
+}
+
+.feedback-modal-content {
+    background-color: #fefefe;
+    padding: 30px; /* Adjusted padding */
+    border: 1px solid #888;
+    width: 90%; /* Adjusted width for better responsiveness */
+    max-width: 350px; /* Made smaller */
+    border-radius: 20px; /* Increased border-radius for more rounded corners */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative; /* For the close button positioning */
+    max-height: 80vh; /* Set a max height relative to viewport height */
+    overflow-y: auto; /* Enable vertical scrolling if content exceeds max-height */
+}
+
+/* --- NEW CLOSE BUTTON --- */
+.close-button {
+    color: #555; /* Changed from #aaa to #555 for better visibility */
+    /* Removed float: right; as it can conflict with absolute positioning */
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute; /* Absolute position within the modal content */
+    top: 10px;
+    right: 20px;
+    cursor: pointer;
+    /* Added padding and border-radius for hover effect */
+    padding: 5px 10px;
+    border-radius: 50%; /* Makes it circular */
+    transition: background-color 0.3s ease, color 0.3s ease;
+    z-index: 10; /* Ensure it's above other elements within the modal content */
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: white; /* Text color on hover */
+    background-color: #FF8C00; /* Orange background on hover */
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Adjustments for the feedback form's submit button inside the modal */
+.feedback-modal-content .btn-primary {
+    width: 100%;
+    margin-top: 20px;
+    /* Inherits general btn-primary styles, but can be overridden if needed */
+}
+
+/* Responsive adjustments for the modal */
+@media (max-width: 768px) {
+    .feedback-modal-content {
+        width: 90%;
+        margin: 5% auto; /* Re-added margin for smaller screens, but as a media query */
+        padding: 25px; /* Adjust padding for smaller screens */
+    }
 }
 
 
@@ -423,22 +620,18 @@ body {
 
     /* Recommendations page specific responsive adjustments  */
     .recommendations-content-wrapper {
-        flex-direction: column; /* Stack form and image vertically on smaller screens */
+        flex-direction: column; /* Stack form and feedback vertically on smaller screens */
         align-items: center;
         gap: 30px;
         flex-wrap: wrap; /* Allow wrapping on smaller screens */
     }
     .input-form-section,
-    .recommendations-image-container {
+    .feedback-section { /* Added feedback-section */
         max-width: 90%; /* Allow them to take more width */
         flex-basis: auto; /* Remove fixed basis when stacked */
     }
-    .recommendations-image-container {
-        min-height: unset; /* Remove min-height when stacked */
-    }
-    .recommendations-image {
-        height: auto; /* Allow image to scale normally when stacked */
-    }
+    /* .recommendations-image-container was removed from HTML, so remove its CSS if it was there */
+    /* .recommendations-image was removed from HTML, so remove its CSS if it was there */
 }
 
 @media (max-width: 768px) {
@@ -482,15 +675,27 @@ body {
     }
 
     /* Recommendations page adjustments */
-    .input-form-section {
+    .input-form-section,
+    .feedback-section { /* Added feedback-section */
         padding: 25px;
     }
-    .input-form-section h2 {
+    .input-form-section h2,
+    .feedback-section h2 { /* Added feedback-section */
         font-size: 1.8em;
     }
     .form-group input[type="number"],
-    .form-group select {
+    .form-group select,
+    .form-group input[type="email"], /* Added email */
+    .form-group textarea { /* Added textarea */
         width: calc(100% - 10px);
+    }
+
+    /* Show mobile feedback trigger, hide desktop feedback trigger */
+    .feedback-trigger-mobile {
+        display: flex; /* Make it visible on mobile */
+    }
+    .feedback-trigger-desktop {
+        display: none; /* Hide desktop version on mobile */
     }
 }
 
@@ -501,5 +706,15 @@ body {
     .app-title {
         font-size: 2em;
     }
+}
 
+/* Media query for desktop and tablet view (min-width: 769px) */
+@media (min-width: 769px) {
+    /* Show desktop feedback trigger, hide mobile feedback trigger */
+    .feedback-trigger-mobile {
+        display: none; /* Hide mobile version on desktop/tablet */
+    }
+    .feedback-trigger-desktop {
+        display: flex; /* Make it visible on desktop/tablet */
+    }
 }
