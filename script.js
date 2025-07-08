@@ -22,15 +22,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const feedbackErrorMessage = document.getElementById('feedbackErrorMessage'); // Error message
 
     // --- Feedback Modal Elements ---
-    // Now get both desktop and mobile triggers
-    const feedbackTriggerDesktop = document.getElementById('feedbackTriggerDesktop');
-    const feedbackTriggerMobile = document.getElementById('feedbackTriggerMobile');
+    // Now correctly targeting the single unified feedbackTrigger ID
+    const feedbackTrigger = document.getElementById('feedbackTrigger'); // This is the correct ID from recommendations.html
     const feedbackModal = document.getElementById('feedbackModal');
     const closeFeedbackModal = document.getElementById('closeFeedbackModal');
 
     // --- Diagnostic Logs for Feedback Elements ---
-    console.log('Feedback Trigger Desktop Element:', feedbackTriggerDesktop);
-    console.log('Feedback Trigger Mobile Element:', feedbackTriggerMobile);
+    console.log('Feedback Trigger Element:', feedbackTrigger); // Updated log
     console.log('Feedback Modal Element:', feedbackModal);
     console.log('Close Feedback Modal Element:', closeFeedbackModal);
 
@@ -227,16 +225,12 @@ document.addEventListener('DOMContentLoaded', () => {
             feedbackModal.classList.add('show-modal');
         };
 
-        // Attach listener to desktop trigger
-        if (feedbackTriggerDesktop) {
-            feedbackTriggerDesktop.addEventListener('click', showFeedbackModal);
-            console.log('Attached click listener to desktop feedback trigger.');
-        }
-
-        // Attach listener to mobile trigger
-        if (feedbackTriggerMobile) {
-            feedbackTriggerMobile.addEventListener('click', showFeedbackModal);
-            console.log('Attached click listener to mobile feedback trigger.');
+        // Attach listener to the unified feedback trigger
+        if (feedbackTrigger) { // Use the single feedbackTrigger element
+            feedbackTrigger.addEventListener('click', showFeedbackModal);
+            console.log('Attached click listener to unified feedback trigger.');
+        } else {
+            console.warn('Unified feedback trigger element not found.');
         }
 
         // Hide modal when close button is clicked

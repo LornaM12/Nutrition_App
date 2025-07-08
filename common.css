@@ -1,0 +1,274 @@
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+/* Basic Reset & Body Styles */
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #F8FFF0; /* Very light green background */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-osx-smoothing: grayscale;
+    overflow-x: hidden; /* Crucial to prevent horizontal scroll from background elements */
+}
+
+/* Universal box-sizing for consistent layout */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* Container for consistent content width */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+/* --- Header Styles --- */
+.main-header {
+    background-color: #FEFAEO;
+    color: #333;
+    padding: 15px 0;
+    border-bottom: 1px solid #D4ECCB;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.main-header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.main-header .logo {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: #FF8C00; /* Original logo color */
+    text-decoration: none; /* Ensure no default underline */
+    position: relative; /* Needed for positioning the custom underline */
+    padding-bottom: 5px; /* Add some space for the underline below the text */
+}
+
+.main-header .logo::after {
+    content: '';
+    position: absolute; /* Position relative to .main-header .logo */
+    left: 0; /* Align with the start of the text */
+    bottom: 0; /* Position at the bottom of the logo */
+    width: 40px;
+    height: 4px;
+    background-color: #4CAF50; /* Green underline color */
+    border-radius: 2px; /* Slightly rounded corners  line */
+}
+
+.main-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.main-nav ul li {
+    margin-left: 25px;
+}
+
+.main-nav ul li a {
+    text-decoration: none;
+    color: #555;
+    font-weight: 600;
+    transition: color 0.3s ease;
+    white-space: nowrap;
+}
+
+.main-nav ul li a:hover {
+    color: #FF8C00;
+}
+
+/* --- Primary Button Style --- */
+.btn-primary {
+    display: inline-block;
+    background-color: #FF8C00;
+    color: white;
+    padding: 15px 30px;
+    text-decoration: none;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 1.1em;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:hover {
+    background-color: #FFA500;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* --- Footer Styles --- */
+.main-footer {
+    background-color: #B3B792;
+    color: #000000;
+    padding: 10px 0;
+    text-align: center;
+    border-top: 1px solid #D4ECCB;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.main-footer .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.main-footer p {
+    margin: 0;
+    font-size: 0.9em;
+}
+
+/* NEW: Footer Email Link Styling */
+.main-footer .contact-email-link {
+    color: #000000; /* Match footer text color */
+    text-decoration: none; /* Remove underline by default */
+    font-weight: 600;
+    font-size: 0.95em;
+    transition: color 0.3s ease;
+}
+
+.main-footer .contact-email-link:hover {
+    color: #FF8C00; /* Orange on hover */
+    text-decoration: underline; /* Add underline on hover */
+}
+
+.footer-social-icons {
+    display: flex;
+    gap: 25px; /* Space between icons */
+    font-size: 1.5em; /* Size of the icons */
+}
+
+.footer-social-icons a {
+    color: #5f6f52; /* Default icon color */
+    transition: color 0.3s ease;
+}
+
+.footer-social-icons a:hover {
+    color: #FF8C00; /* Orange on hover */
+}
+
+/* --- FEEDBACK MODAL (The full feedback form container) --- */
+.feedback-modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1001; /* Higher than the trigger */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+}
+
+/* Class to show the modal */
+.feedback-modal.show-modal {
+    display: flex;
+}
+
+.feedback-modal-content {
+    background-color: #fefefe;
+    padding: 30px; /* Adjusted padding */
+    border: 1px solid #888;
+    width: 90%; /* Adjusted width for better responsiveness */
+    max-width: 350px; /* Made smaller */
+    border-radius: 20px; /* Increased border-radius for more rounded corners */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative; /* For the close button positioning */
+    max-height: 80vh; /* Set a max height relative to viewport height */
+    overflow-y: auto; /* Enable vertical scrolling if content exceeds max-height */
+}
+
+/* --- NEW CLOSE BUTTON --- */
+.close-button {
+    color: #555; /* Changed from #aaa to #555 for better visibility */
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute; /* Absolute position within the modal content */
+    top: 10px;
+    right: 20px;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 50%; /* Makes it circular */
+    transition: background-color 0.3s ease, color 0.3s ease;
+    z-index: 10; /* Ensure it's above other elements within the modal content */
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: white; /* Text color on hover */
+    background-color: #FF8C00; /* Orange background on hover */
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Adjustments for the feedback form's submit button inside the modal */
+.feedback-modal-content .btn-primary {
+    width: 100%;
+    margin-top: 20px;
+}
+
+/* Responsive adjustments for the modal */
+@media (max-width: 768px) {
+    .feedback-modal-content {
+        width: 90%;
+        margin: 5% auto; /* Re-added margin for smaller screens, but as a media query */
+        padding: 25px; /* Adjust padding for smaller screens */
+    }
+}
+
+/* --- Responsive Adjustments (General & Header/Footer Specific) --- */
+@media (max-width: 1024px) {
+    /* Header/Nav adjustments for smaller tablets/phones */
+    .main-header .container {
+        flex-direction: column;
+        text-align: center;
+    }
+    .main-nav ul {
+        margin-top: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .main-nav ul li {
+        margin: 0 10px 10px 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Header/Nav adjustments for smaller tablets/phones */
+    .main-header .container {
+        flex-direction: column;
+        text-align: center;
+    }
+    .main-nav ul {
+        margin-top: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .main-nav ul li {
+        margin: 0 10px 10px 10px;
+    }
+
+    /* Footer social icons responsiveness */
+    .footer-social-icons {
+        font-size: 1.3em;
+        gap: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-nav ul li {
+        margin: 0 8px 8px 8px;
+    }
+}

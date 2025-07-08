@@ -1,0 +1,264 @@
+/* --- Recommendations Page Specific Styles --- */
+.recommendations-page-content {
+    background-color: #F0FFF0;
+    padding: 60px 0;
+    min-height: calc(100vh - 100px);
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Center vertically in the available space */
+}
+
+.recommendations-content-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    gap: 40px;
+    flex-wrap: nowrap; /* Prevents wrapping until media query */
+    width: 100%;
+}
+
+.input-form-section {
+    background-color: #FFFFFF;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    flex: 1 1 500px; /* Allows flexibility, but with a preferred basis */
+    max-width: 600px;
+    text-align: center;
+    position: relative; /* Keep relative for any internal positioning if needed */
+}
+
+.input-form-section h2 {
+    color: #333;
+    font-size: 2.2em;
+    margin-bottom: 15px;
+}
+
+.input-form-section p {
+    color: #666;
+    font-size: 1.05em;
+    margin-bottom: 30px;
+}
+
+.recommendation-form,
+.feedback-form { /* Apply to both forms */
+    text-align: left;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-weight: 600;
+}
+
+.form-group input[type="number"],
+.form-group select,
+.form-group input[type="email"],
+.form-group textarea {
+    width: calc(100% - 20px); /* Adjust width to account for padding */
+    padding: 12px 10px;
+    border: 1px solid #D4ECCB;
+    border-radius: 8px;
+    font-size: 1em;
+    color: #333;
+    background-color: #F8FFF0;
+    transition: border-color 0.3s ease;
+    resize: vertical; /* Allow vertical resizing for textarea */
+}
+
+.form-group input[type="number"]:focus,
+.form-group select:focus,
+.form-group input[type="email"]:focus,
+.form-group textarea:focus {
+    border-color: #FF8C00;
+    outline: none;
+    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
+}
+
+.recommendation-form .btn-primary,
+.feedback-form .btn-primary {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.recommendations-output {
+    margin-top: 40px;
+    padding: 25px;
+    background-color: #E6F7E6;
+    border-radius: 10px;
+    border: 1px dashed #BEE3BE;
+    text-align: left;
+    color: #333;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1em;
+    flex-direction: column; /* Ensure content stacks if multiple elements are added */
+}
+
+.recommendations-output ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.recommendations-output ul li {
+    background-color: #FFFFFF;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border-left: 5px solid #FF8C00;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.recommendations-output ul li:last-child {
+    margin-bottom: 0;
+}
+
+/* Message Styles (loading, error, no recs, feedback success/error) */
+.loading-message,
+.no-recommendations-message,
+.feedback-message,
+.error-message {
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-align: center;
+    display: none; /* Hidden by default, shown by JS */
+}
+
+.loading-message {
+    color: #4CAF50;
+    background-color: #E8F5E9;
+    border: 1px solid #A5D6A7;
+}
+
+.no-recommendations-message {
+    color: #555;
+    background-color: #FFFDE7;
+    border: 1px solid #FFE082;
+}
+
+.feedback-message {
+    color: #2E7D32;
+    background-color: #E8F5E9;
+    border: 1px solid #A5D6A7;
+}
+
+.error-message {
+    color: #D32F2F;
+    background-color: #FFEBEE;
+    border: 1px solid #EF9A9A;
+}
+
+/* Feedback Section & Star Rating Styles (inside modal) */
+.feedback-section {
+    background-color: #FFFFFF;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.feedback-form {
+    /* Inherits from .recommendation-form */
+}
+
+.rating-stars {
+    font-size: 1.8em;
+    color: #FFD700;
+    cursor: pointer;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+}
+
+.rating-stars .fa-star {
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.rating-stars .fa-star:hover {
+    transform: scale(1.1);
+}
+
+/* --- FEEDBACK TRIGGER BASE STYLES (Apply to both desktop and mobile versions) --- */
+.feedback-trigger {
+    background-color: transparent;
+    color: #555;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: none;
+    font-weight: 600;
+    font-size: 1.0em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.3s ease, background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    margin-top: 30px; /* Added margin to separate from recommendations output */
+    width: fit-content; /* Ensure it doesn't stretch full width */
+    margin-left: auto; /* Center it if it's a block element */
+    margin-right: auto; /* Center it if it's a block element */
+}
+
+.feedback-trigger:hover {
+    color: #FF8C00;
+    background-color: rgba(255, 140, 0, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* --- FEEDBACK TRIGGER POSITIONING (Unified for all screen sizes) --- */
+/* We want it to flow naturally after the recommendations section */
+/* These classes are now redundant in HTML but kept for CSS compatibility */
+.feedback-trigger-mobile,
+.feedback-trigger-desktop {
+    position: static; /* Override fixed/absolute positioning */
+    display: flex; /* Always display it */
+    z-index: auto; /* Reset z-index */
+    margin-top: 30px; /* Add space below recommendations output */
+    width: fit-content; /* Shrink to content size */
+    margin-left: auto; /* Center horizontally */
+    margin-right: auto; /* Center horizontally */
+}
+
+
+/* --- Responsive Adjustments (Recommendations Page Specific) --- */
+@media (max-width: 1024px) {
+    .recommendations-content-wrapper {
+        flex-direction: column; /* Stack form and feedback vertically on smaller screens */
+        align-items: center;
+        gap: 30px;
+        flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    }
+    .input-form-section {
+        max-width: 90%; /* Allow them to take more width */
+        flex-basis: auto; /* Remove fixed basis when stacked */
+    }
+}
+
+@media (max-width: 768px) {
+    .input-form-section {
+        padding: 25px;
+    }
+    .input-form-section h2 {
+        font-size: 1.8em;
+    }
+    .form-group input[type="number"],
+    .form-group select,
+    .form-group input[type="email"],
+    .form-group textarea {
+        width: calc(100% - 10px);
+    }
+}

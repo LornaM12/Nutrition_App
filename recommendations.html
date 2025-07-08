@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NutriApp - Get Recommendations</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="common.css">           <!-- NEW: Link to common.css -->
+    <link rel="stylesheet" href="recommendations.css">  <!-- NEW: Link to recommendations.css -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
@@ -17,7 +18,7 @@
                 <ul>
                     <li><a href="index.html">Home</a></li>
                     <li><a href="recommendations.html">Get Recommendations</a></li>
-                    <li><a href="contacts.html">Contacts</a></li>
+                    <!-- REMOVED: <li><a href="contacts.html">Contacts</a></li> -->
                 </ul>
             </nav>
         </div>
@@ -63,8 +64,8 @@
                 <div id="loadingMessage" class="loading-message" style="display:none;">Loading recommendations...</div>
                 <div id="noRecommendationsMessage" class="no-recommendations-message" style="display:none;">No specific recommendations found. Try adjusting your inputs.</div>
 
-                <!-- NEW: Mobile-specific feedback button, hidden on desktop/tablet by CSS -->
-                <div id="feedbackTriggerMobile" class="feedback-trigger feedback-trigger-mobile">
+                <!-- UNIFIED FEEDBACK TRIGGER - Now always in the flow -->
+                <div id="feedbackTrigger" class="feedback-trigger">
                     <i class="fas fa-external-link-alt"></i> Share your feedback with us
                 </div>
 
@@ -75,26 +76,22 @@
 
     <footer class="main-footer">
         <div class="container">
-            <p>&copy; 2025 NutriApp. All rights reserved.</p>
-            <!--<div class="footer-social-icons">
-                <a href="#"><i class="fab fa-facebook"></i></a>
-                <a href="#"><i class="fab fa-instagram"></i></a>
-                <a href="#"><i class="fab fa-youtube"></i></a> -->
+            <!-- <p>&copy; 2025 NutriApp. All rights reserved.</p> -->
+            <!-- NEW: Email added to footer -->
+            <p>Contact us: <a href="mailto:info@nutriapp.com" class="contact-email-link">info@nutriapp.com</a></p>
+            <div class="footer-social-icons">
+                <!-- Social media icons can be uncommented if needed -->
+                <!--<a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>-->
             </div>
         </div>
     </footer>
-
-    <!-- DESKTOP/TABLET FEEDBACK TRIGGER BUTTON - Hidden on mobile by CSS -->
-    <div id="feedbackTriggerDesktop" class="feedback-trigger feedback-trigger-desktop">
-        <i class="fas fa-external-link-alt"></i> Share your feedback with us
-    </div>
 
     <!-- NEW FEEDBACK MODAL STRUCTURE -->
     <div id="feedbackModal" class="feedback-modal">
         <div class="feedback-modal-content">
             <span class="close-button" id="closeFeedbackModal">&times;</span>
-            <!-- The original feedback section content goes here -->
-            <!-- REMOVED 'input-form-section' class from feedback-section to prevent overlap -->
             <section class="feedback-section">
                 <h2>Share Your Feedback</h2>
                 <p>Help us improve! What do you think about NutriApp?</p>
