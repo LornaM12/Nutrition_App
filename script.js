@@ -180,9 +180,9 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 // API_BASE_URL: Change between local testing and live deployment
                 // For local testing:
-                const API_BASE_URL = "http://127.0.0.1:8000";
+                //const API_BASE_URL = "http://127.0.0.1:8000";
                 // For live deployment:
-                // const API_BASE_URL = "https://nutriapp-backend-mnnq.onrender.com";
+                const API_BASE_URL = "https://nutriapp-backend-mnnq.onrender.com";
 
                 const apiUrl = `${API_BASE_URL}/submit_feedback`;
                 console.log('Submitting feedback to:', apiUrl);
