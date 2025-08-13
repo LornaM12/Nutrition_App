@@ -70,7 +70,12 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingMessage.style.display = 'block'; // Show loading message
 
         try {
-            const API_BASE_URL = "https://nutriapp-backend-mnnq.onrender.com"; // Your Render API URL
+            // API_BASE_URL: Change between local testing and live deployment
+            // For local testing:
+            const API_BASE_URL = "http://127.0.0.1:8000";
+            // For live deployment:
+            // const API_BASE_URL = "https://nutriapp-backend-mnnq.onrender.com";
+
             const apiUrl = `${API_BASE_URL}/recommend_meal?${queryParams.join('&')}`;
             console.log('Fetching recommendations from:', apiUrl);
 
@@ -173,8 +178,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                const API_BASE_URL = "https://nutriapp-backend-mnnq.onrender.com"; // Your Render API URL
-                //const API_BASE_URL = "http://127.0.0.1:8000"; // Currently set for local testing
+                // API_BASE_URL: Change between local testing and live deployment
+                // For local testing:
+                const API_BASE_URL = "http://127.0.0.1:8000";
+                // For live deployment:
+                // const API_BASE_URL = "https://nutriapp-backend-mnnq.onrender.com";
+
                 const apiUrl = `${API_BASE_URL}/submit_feedback`;
                 console.log('Submitting feedback to:', apiUrl);
 
