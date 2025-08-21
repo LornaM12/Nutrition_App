@@ -1,0 +1,53 @@
+/* dashboard.css */
+
+.dashboard-content {
+    background-color: #F8FFF0; /* Light green background from common.css */
+    padding: 60px 0;
+    min-height: calc(100vh - 150px); /* Adjust height to fit between header and footer */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.welcome-section {
+    max-width: 600px;
+    padding: 40px;
+    background-color: #FEFAEO; /* The light cream color from your header */
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.welcome-section h1 {
+    font-size: 2.5em;
+    font-weight: 700;
+    color: #FF8C00; /* Orange accent color */
+    margin-bottom: 10px;
+}
+
+.welcome-section p {
+    font-size: 1.1em;
+    color: #555;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.dashboard-btn {
+    /* Reusing .btn-primary from common.css */
+    font-size: 1.2em; /* Slightly larger button for emphasis */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .welcome-section {
+        padding: 20px;
+    }
+
+    .welcome-section h1 {
+        font-size: 2em;
+    }
+
+    .welcome-section p {
+        font-size: 1em;
+    }
+}

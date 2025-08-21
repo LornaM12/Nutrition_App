@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - NutriApp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #FF8C42;
+            --primary-dark: #E67A38;
+            --secondary-color: #4ECDC4;
+            --accent-color: #45B7AA;
+            --text-primary: #2D3748;
+            --text-secondary: #4A5568;
+            --text-muted: #718096;
+            --success-color: #48BB78;
+            --error-color: #E53E3E;
+            --border-radius: 16px;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.2);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Background Image Section */
+        .login-container {
+            position: relative;
+            height: 100vh;
+            width: 100vw;
+            background: linear-gradient(135deg,
+                rgba(255, 140, 66, 0.1) 0%,
+                rgba(78, 205, 196, 0.1) 100%),
+                url('images/img4.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 2rem 4rem 2rem;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg,
+                rgba(45, 55, 72, 0.4) 0%,
+                rgba(45, 55, 72, 0.6) 100%);
+            z-index: 1;
+        }
+
+        /* Back to Home Button */
+        .back-button {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Login Modal */
+        .login-modal {
+            position: relative;
+            z-index: 2;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 450px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: modalSlideIn 0.5s ease-out;
+            margin: 2rem 0;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+
+        .logo::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 2px;
+        }
+
+        .login-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Quote Section */
+        .quote-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quote-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .quote-text {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            font-style: italic;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Form Styles */
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            z-index: 1;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* Login Button */
+        .login-button {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .login-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .login-button:hover::before {
+            left: 100%;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        .login-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .login-button.loading {
+            pointer-events: none;
+        }
+
+        .login-button .spinner {
+            display: none;
+            margin-right: 0.5rem;
+        }
+
+        .login-button.loading .spinner {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Divider */
+        .divider {
+            text-align: center;
+            margin: 2rem 0 1.5rem;
+            position: relative;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(0,0,0,0.1), transparent);
+        }
+
+        .divider span {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 0 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Switch Form */
+        .switch-form {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .switch-form a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .switch-form a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        /* Message Styles */
+        .message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: none;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .message.error {
+            background: rgba(229, 62, 62, 0.1);
+            color: var(--error-color);
+            border: 1px solid rgba(229, 62, 62, 0.2);
+        }
+
+        .message.success {
+            background: rgba(72, 187, 120, 0.1);
+            color: var(--success-color);
+            border: 1px solid rgba(72, 187, 120, 0.2);
+        }
+
+        .message i {
+            margin-right: 0.5rem;
+        }
+
+        /* Animations */
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0px, 0px) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(1deg); }
+            66% { transform: translate(-20px, 20px) rotate(-1deg); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 1rem;
+            }
+
+            .login-modal {
+                padding: 2rem;
+                margin: 1rem;
+                max-width: 100%;
+            }
+
+            .back-button {
+                top: 1rem;
+                left: 1rem;
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .logo {
+                font-size: 1.8rem;
+            }
+
+            .login-title {
+                font-size: 1.3rem;
+            }
+
+            .quote-text {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-modal {
+                padding: 1.5rem;
+                border-radius: 16px;
+            }
+
+            .quote-section {
+                padding: 1rem;
+            }
+
+            .form-input {
+                padding: 0.875rem 0.875rem 0.875rem 2.5rem;
+            }
+
+            .login-button {
+                padding: 0.875rem 1.5rem;
+            }
+        }
+
+        /* Loading State */
+        .form-loading {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .form-loading .form-input {
+            background: rgba(255, 255, 255, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <a href="index.html" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Back to Home
+        </a>
+
+        <div class="login-modal">
+            <div class="login-header">
+                <div class="logo">NutriApp</div>
+                <h2 class="login-title">Welcome Back</h2>
+                <p class="login-subtitle">Enter your credentials to access your account</p>
+            </div>
+
+            <div class="quote-section">
+                <p class="quote-text">"Embrace the art of healthy eating, where nutrition comes alive!"</p>
+            </div>
+
+            <form id="loginForm" class="login-form">
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="username" name="username" class="form-input" placeholder="Enter your username" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="login-button">
+                    <i class="fas fa-spinner spinner"></i>
+                    <span>Log In</span>
+                </button>
+
+                <div id="message" class="message"></div>
+            </form>
+
+            <div class="divider">
+                <span>OR</span>
+            </div>
+
+            <div class="switch-form">
+                Don't have an account? <a href="signup.html">Sign Up here</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API endpoint for your local FastAPI backend
+        const API_URL = 'http://127.0.0.1:8000';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('loginForm');
+            const loginButton = loginForm.querySelector('.login-button');
+            const messageDiv = document.getElementById('message');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+
+            // Add input focus effects
+            [usernameInput, passwordInput].forEach(input => {
+                input.addEventListener('focus', () => {
+                    input.parentElement.style.transform = 'translateY(-2px)';
+                });
+
+                input.addEventListener('blur', () => {
+                    input.parentElement.style.transform = 'translateY(0)';
+                });
+            });
+
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                // Clear any previous messages
+                hideMessage();
+
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value;
+
+                // Simple validation
+                if (!username || !password) {
+                    showMessage('Please enter both username and password.', 'error');
+                    return;
+                }
+
+                // Show loading state
+                setLoadingState(true);
+
+                try {
+                    const response = await fetch(`${API_URL}/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ username, password }),
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        showMessage(data.message || 'Login successful!', 'success');
+                        console.log('User logged in successfully! User ID:', data.user_id);
+
+                        // Store the user ID in localStorage
+                        if (data.user_id) {
+                            localStorage.setItem('user_id', data.user_id);
+                        }
+
+                        // Redirect with a small delay to show success message
+                        setTimeout(() => {
+                            window.location.href = 'dashboard.html';
+                        }, 1500);
+
+                    } else {
+                        showMessage(data.detail || 'Login failed. Please try again.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Network or server error:', error);
+                    showMessage('Unable to connect to server. Please try again.', 'error');
+                } finally {
+                    setLoadingState(false);
+                }
+            });
+
+            function setLoadingState(loading) {
+                if (loading) {
+                    loginButton.classList.add('loading');
+                    loginButton.disabled = true;
+                    loginForm.classList.add('form-loading');
+                } else {
+                    loginButton.classList.remove('loading');
+                    loginButton.disabled = false;
+                    loginForm.classList.remove('form-loading');
+                }
+            }
+
+            function showMessage(text, type) {
+                const icon = type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-check-circle';
+                messageDiv.innerHTML = `<i class="${icon}"></i>${text}`;
+                messageDiv.className = `message ${type}`;
+                messageDiv.style.display = 'block';
+            }
+
+            function hideMessage() {
+                messageDiv.style.display = 'none';
+                messageDiv.className = 'message';
+                messageDiv.textContent = '';
+            }
+
+            // Add keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    window.location.href = 'index.html';
+                }
+            });
+
+            // Add subtle animations on load
+            setTimeout(() => {
+                document.querySelector('.login-modal').style.transform = 'scale(1)';
+            }, 100);
+        });
+    </script>
+</body>
+</html>

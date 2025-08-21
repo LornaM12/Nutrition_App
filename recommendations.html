@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NutriApp - Get Recommendations</title>
-    <link rel="stylesheet" href="common.css">           <!-- NEW: Link to common.css -->
-    <link rel="stylesheet" href="recommendations.css">  <!-- NEW: Link to recommendations.css -->
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="recommendations.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 
@@ -18,9 +18,20 @@
                 <ul>
                     <li><a href="index.html">Home</a></li>
                     <li><a href="recommendations.html">Get Recommendations</a></li>
-                    <!-- REMOVED: <li><a href="contacts.html">Contacts</a></li> -->
                 </ul>
             </nav>
+            <div class="user-dropdown" id="userDropdown" style="display:none;">
+                <button class="user-profile-btn">
+                    <i class="fas fa-user-circle"></i> Hi, User!
+                </button>
+                <div class="dropdown-content">
+                    <a href="#" id="logoutBtn">Log Out</a>
+                </div>
+            </div>
+            <div class="auth-buttons" id="authButtons" style="display:none;">
+                <a href="login.html" class="btn-primary auth-btn">Log In</a>
+                <a href="signup.html" class="btn-primary auth-btn">Sign Up</a>
+            </div>
         </div>
     </header>
 
@@ -64,7 +75,6 @@
                 <div id="loadingMessage" class="loading-message" style="display:none;">Loading recommendations...</div>
                 <div id="noRecommendationsMessage" class="no-recommendations-message" style="display:none;">No specific recommendations found. Try adjusting your inputs.</div>
 
-                <!-- UNIFIED FEEDBACK TRIGGER - Now always in the flow -->
                 <div id="feedbackTrigger" class="feedback-trigger">
                     <i class="fas fa-external-link-alt"></i> Share your feedback with us
                 </div>
@@ -76,19 +86,12 @@
 
     <footer class="main-footer">
         <div class="container">
-            <!-- <p>&copy; 2025 NutriApp. All rights reserved.</p> -->
-            <!-- NEW: Email added to footer -->
             <p>Contact us: <a href="mailto:info@convergenceai.io" class="contact-email-link">info@convergenceai.io</a></p>
             <div class="footer-social-icons">
-                <!-- Social media icons can be uncommented if needed -->
-                <!--<a href="#"><i class="fab fa-facebook"></i></a>
-                <a href="#"><i class="fab fa-instagram"></i></i></a>
-                <a href="#"><i class="fab fa-youtube"></i></a>-->
             </div>
         </div>
     </footer>
 
-    <!-- NEW FEEDBACK MODAL STRUCTURE -->
     <div id="feedbackModal" class="feedback-modal">
         <div class="feedback-modal-content">
             <span class="close-button" id="closeFeedbackModal">&times;</span>
@@ -126,6 +129,7 @@
         </div>
     </div>
 
+    <script src="auth.js"></script>
     <script src="script.js"></script>
 
 </body>

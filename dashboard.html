@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriApp - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #FF8C42;
+            --primary-dark: #E67A38;
+            --secondary-color: #4ECDC4;
+            --accent-color: #45B7AA;
+            --bg-primary: #FEFFFE;
+            --bg-secondary: #F8FDF8;
+            --bg-hero: linear-gradient(135deg, #E8F8E8 0%, #F0FAF0 100%);
+            --text-primary: #2D3748;
+            --text-secondary: #4A5568;
+            --text-muted: #718096;
+            --success-color: #48BB78;
+            --warning-color: #ECC94B;
+            --error-color: #E53E3E;
+            --info-color: #4ECDC4;
+            --border-color: rgba(78, 205, 196, 0.2);
+            --border-radius: 16px;
+            --border-radius-lg: 20px;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.2);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Header Styles */
+        .main-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: var(--transition);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            position: relative;
+        }
+
+        .logo::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 2px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .user-greeting {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Dashboard Layout */
+        .dashboard-main {
+            padding: 2rem 0;
+            min-height: calc(100vh - 80px);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Welcome Section */
+        .welcome-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 2rem;
+            border-radius: var(--border-radius-lg);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .welcome-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="a" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="%23FFFFFF" stop-opacity="0.1"/><stop offset="100%" stop-color="%234ECDC4" stop-opacity="0.05"/></radialGradient></defs><circle cx="200" cy="200" r="300" fill="url(%23a)"/><circle cx="800" cy="600" r="200" fill="url(%23a)"/></svg>') no-repeat;
+            background-size: cover;
+            opacity: 0.3;
+            z-index: 0;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .welcome-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-subtitle {
+            opacity: 0.9;
+            margin-bottom: 1.5rem;
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--bg-primary);
+            border-radius: var(--border-radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            border: 1px solid var(--border-color);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        /* Sugar Level Status */
+        .sugar-status {
+            text-align: center;
+        }
+
+        .sugar-reading {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .sugar-unit {
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+
+        .status-normal {
+            background: rgba(72, 187, 120, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-warning {
+            background: rgba(236, 201, 75, 0.1);
+            color: var(--warning-color);
+        }
+
+        .status-danger {
+            background: rgba(229, 62, 62, 0.1);
+            color: var(--error-color);
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 250px;
+            margin-top: 1rem;
+        }
+
+        /* Recommendations */
+        .recommendations-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .recommendation-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .rec-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .rec-content h4 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+        }
+
+        .rec-content p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 600;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .action-btn:hover {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .action-icon {
+            font-size: 1.2rem;
+        }
+
+        /* Progress Bars */
+        .progress-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-label {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .progress-value {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(78, 205, 196, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary-color), var(--accent-color));
+            border-radius: 4px;
+            transition: width 1s ease-out;
+        }
+
+        /* Recent Readings */
+        .readings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .reading-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+        }
+
+        .reading-time {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .reading-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--bg-primary);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: var(--bg-primary);
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.1);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translate(0px, 0px) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(1deg); }
+            66% { transform: translate(-20px, 20px) rotate(-1deg); }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .card {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        /* Responsive Design */
+        @media (min-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+
+            .cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .cards-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .dashboard-main {
+                padding: 1rem 0;
+            }
+
+            .welcome-title {
+                font-size: 1.5rem;
+            }
+
+            .quick-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">NutriApp</div>
+                <div class="user-info">
+                    <div>
+                        <div class="user-greeting">Welcome back,</div>
+                        <div class="user-name">User</div>
+                    </div>
+                    <div class="user-avatar">U</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Dashboard Main -->
+    <main class="dashboard-main">
+        <div class="container">
+            <!-- Welcome Section -->
+            <div class="welcome-card">
+                <div class="welcome-content">
+                    <h1 class="welcome-title">Good morning, user!</h1>
+                    <p class="welcome-subtitle">Here's your health summary for today!</p>
+
+                    <a href="recommendations.html" class="btn btn-primary" style="margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none;">
+                        <i class="fas fa-utensils"></i>
+                        Get Meal Recommendations
+                    </a>
+
+                    <div class="quick-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">127</div>
+                            <div class="stat-label">Current Reading</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">7.2%</div>
+                            <div class="stat-label">Avg A1C</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">85%</div>
+                            <div class="stat-label">In Range</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">12</div>
+                            <div class="stat-label">Day Streak</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Left Column -->
+                <div class="left-column">
+                    <!-- Charts Section -->
+                    <div class="cards-grid">
+                        <!-- Sugar Trend Chart -->
+                        <div class="card" style="grid-column: span 3;">
+                            <div class="card-header">
+                                <h3 class="card-title">Blood Sugar Trend (Last 7 Days)</h3>
+                                <div class="card-icon" style="background: var(--info-color); color: white;">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="sugarTrendChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Current Status -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Current Status</h3>
+                                <div class="card-icon" style="background: var(--success-color); color: white;">
+                                    <!--<i class="fas fa-heartbeat"></i>-->
+                                </div>
+                            </div>
+                            <div class="sugar-status">
+                                <div class="sugar-reading" style="color: var(--success-color); font-size: 2.2rem;">
+                                    127<span class="sugar-unit" style="font-size: 0.8rem;">mg/dL</span>
+                                </div>
+                                <div class="status-indicator status-normal">
+                                    <i class="fas fa-check-circle"></i>
+                                    Normal
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Health Goals -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Today's Goals</h3>
+                                <div class="card-icon" style="background: var(--primary-color); color: white;">
+                                    <i class="fas fa-target"></i>
+                                </div>
+                            </div>
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <span class="progress-label">Readings Logged</span>
+                                    <span class="progress-value">3/4</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 75%;"></div>
+                                </div>
+                            </div>
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <span class="progress-label">Water Intake</span>
+                                    <span class="progress-value">6/8 cups</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 75%;"></div>
+                                </div>
+                            </div>
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <span class="progress-label">Exercise Minutes</span>
+                                    <span class="progress-value">22/30 min</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 73%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Weekly Overview -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Weekly Overview</h3>
+                                <div class="card-icon" style="background: var(--secondary-color); color: white;">
+                                    <i class="fas fa-calendar-week"></i>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="weeklyChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Quick Actions</h3>
+                        </div>
+                        <div class="quick-actions">
+                            <button class="action-btn" onclick="openModal('sugar')">
+                                <i class="fas fa-tint action-icon" style="color: var(--error-color);"></i>
+                                Log Sugar Reading
+                            </button>
+                            <button class="action-btn" onclick="openModal('water')">
+                                <i class="fas fa-glass-water action-icon" style="color: var(--info-color);"></i>
+                                Log Water Intake
+                            </button>
+                            <button class="action-btn" onclick="openModal('exercise')">
+                                <i class="fas fa-dumbbell action-icon" style="color: var(--success-color);"></i>
+                                Log Exercise
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="right-column">
+                    <!-- Quick Tips for You -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Quick Tips for You</h3>
+                            <div class="card-icon" style="background: var(--primary-color); color: white;">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                        </div>
+                        <div class="recommendations-list">
+                            <div class="recommendation-item">
+                                <div class="rec-icon">
+                                    <i class="fas fa-apple-alt"></i>
+                                </div>
+                                <div class="rec-content">
+                                    <h4>Breakfast Tip</h4>
+                                    <p>Low glycemic index meals help stabilize morning levels.</p>
+                                </div>
+                            </div>
+                            <div class="recommendation-item">
+                                <div class="rec-icon">
+                                    <i class="fas fa-walking"></i>
+                                </div>
+                                <div class="rec-content">
+                                    <h4>Activity Reminder</h4>
+                                    <p>A 10-minute walk after lunch can help reduce post-meal glucose spikes.</p>
+                                </div>
+                            </div>
+                            <div class="recommendation-item">
+                                <div class="rec-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="rec-content">
+                                    <h4>Timing Tip</h4>
+                                    <p>Your readings are typically higher in the evening. Consider an earlier dinner.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Readings -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Recent Readings</h3>
+                            <div class="card-icon" style="background: var(--accent-color); color: white;">
+                                <i class="fas fa-history"></i>
+                            </div>
+                        </div>
+                        <div class="readings-list">
+                            <div class="reading-item">
+                                <span class="reading-time">Today 2:30 PM</span>
+                                <span class="reading-value" style="color: var(--success-color);">127 mg/dL</span>
+                            </div>
+                            <div class="reading-item">
+                                <span class="reading-time">Today 8:00 AM</span>
+                                <span class="reading-value" style="color: var(--success-color);">98 mg/dL</span>
+                            </div>
+                            <div class="reading-item">
+                                <span class="reading-time">Yesterday 7:45 PM</span>
+                                <span class="reading-value" style="color: var(--warning-color);">156 mg/dL</span>
+                            </div>
+                            <div class="reading-item">
+                                <span class="reading-time">Yesterday 1:15 PM</span>
+                                <span class="reading-value" style="color: var(--success-color);">134 mg/dL</span>
+                            </div>
+                            <div class="reading-item">
+                                <span class="reading-time">Yesterday 7:30 AM</span>
+                                <span class="reading-value" style="color: var(--success-color);">105 mg/dL</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Blood Sugar Modal -->
+    <div class="modal-overlay" id="sugarModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Log Blood Sugar Reading</h3>
+            </div>
+            <form id="sugarForm">
+                <div class="input-group">
+                    <label for="sugarReading">Blood Sugar (mg/dL)</label>
+                    <input type="number" id="sugarReading" name="sugarReading" class="form-input" placeholder="Enter reading" min="50" max="400" required>
+                </div>
+                <div class="input-group">
+                    <label for="sugarTime">Time</label>
+                    <input type="datetime-local" id="sugarTime" name="sugarTime" class="form-input" required>
+                </div>
+                <div class="input-group">
+                    <label for="mealType">Meal Context</label>
+                    <select id="mealType" name="mealType" class="form-select">
+                        <option value="fasting">Fasting</option>
+                        <option value="before-breakfast">Before Breakfast</option>
+                        <option value="after-breakfast">After Breakfast</option>
+                        <option value="before-lunch">Before Lunch</option>
+                        <option value="after-lunch">After Lunch</option>
+                        <option value="before-dinner">Before Dinner</option>
+                        <option value="after-dinner">After Dinner</option>
+                        <option value="bedtime">Bedtime</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Reading</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Water Intake Modal -->
+    <div class="modal-overlay" id="waterModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Log Water Intake</h3>
+            </div>
+            <form id="waterForm">
+                <div class="input-group">
+                    <label for="waterAmount">Amount</label>
+                    <input type="number" id="waterAmount" name="waterAmount" class="form-input" placeholder="Enter amount" min="1" max="100" step="0.1" required>
+                </div>
+                <div class="input-group">
+                    <label for="waterUnit">Unit</label>
+                    <select id="waterUnit" name="waterUnit" class="form-select" required>
+                        <option value="cups">Cups (8 fl oz)</option>
+                        <option value="ml">Milliliters</option>
+                        <option value="liters">Liters</option>
+                        <option value="fl-oz">Fluid Ounces</option>
+                        <option value="bottles">Water Bottles (16.9 fl oz)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="waterTime">Time</label>
+                    <input type="datetime-local" id="waterTime" name="waterTime" class="form-input" required>
+                </div>
+                <div class="input-group">
+                    <label for="waterSource">Source (optional)</label>
+                    <select id="waterSource" name="waterSource" class="form-select">
+                        <option value="">Select source...</option>
+                        <option value="plain-water">Plain Water</option>
+                        <option value="sparkling-water">Sparkling Water</option>
+                        <option value="herbal-tea">Herbal Tea</option>
+                        <option value="green-tea">Green Tea</option>
+                        <option value="black-tea">Black Tea</option>
+                        <option value="coffee">Coffee</option>
+                        <option value="coconut-water">Coconut Water</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Intake</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Exercise Modal -->
+    <div class="modal-overlay" id="exerciseModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Log Exercise</h3>
+            </div>
+            <form id="exerciseForm">
+                <div class="input-group">
+                    <label for="exerciseType">Exercise Type</label>
+                    <select id="exerciseType" name="exerciseType" class="form-select" required>
+                        <option value="">Select exercise...</option>
+                        <option value="walking">Walking</option>
+                        <option value="running">Running</option>
+                        <option value="cycling">Cycling</option>
+                        <option value="swimming">Swimming</option>
+                        <option value="strength-training">Strength Training</option>
+                        <option value="yoga">Yoga</option>
+                        <option value="pilates">Pilates</option>
+                        <option value="dancing">Dancing</option>
+                        <option value="hiking">Hiking</option>
+                        <option value="basketball">Basketball</option>
+                        <option value="tennis">Tennis</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="exerciseDuration">Duration (minutes)</label>
+                    <input type="number" id="exerciseDuration" name="exerciseDuration" class="form-input" placeholder="Enter duration" min="1" max="300" required>
+                </div>
+                <div class="input-group">
+                    <label for="exerciseIntensity">Intensity</label>
+                    <select id="exerciseIntensity" name="exerciseIntensity" class="form-select" required>
+                        <option value="low">Low - Light activity, minimal exertion</option>
+                        <option value="moderate">Moderate - Some effort, can hold conversation</option>
+                        <option value="high">High - Vigorous effort, difficult to talk</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="exerciseTime">Time</label>
+                    <input type="datetime-local" id="exerciseTime" name="exerciseTime" class="form-input" required>
+                </div>
+                <div class="input-group">
+                    <label for="exerciseNotes">Notes (optional)</label>
+                    <input type="text" id="exerciseNotes" name="exerciseNotes" class="form-input" placeholder="How did you feel? Any observations?">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Exercise</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Mock data for charts and dashboard
+        const mockData = {
+            sugarReadings: [
+                { date: '2025-07-15', time: '07:30', value: 105, meal: 'fasting' },
+                { date: '2025-07-15', time: '13:15', value: 134, meal: 'post-lunch' },
+                { date: '2025-07-15', time: '19:45', value: 156, meal: 'post-dinner' },
+                { date: '2025-07-16', time: '08:00', value: 98, meal: 'fasting' },
+                { date: '2025-07-16', time: '14:30', value: 127, meal: 'post-lunch' },
+                { date: '2025-07-17', time: '07:45', value: 102, meal: 'fasting' },
+                { date: '2025-07-17', time: '13:00', value: 145, meal: 'post-lunch' }
+            ]
+        };
+
+        let currentModal = null;
+
+        // Initialize charts
+        function initCharts() {
+            // Sugar Trend Chart
+            const ctx1 = document.getElementById('sugarTrendChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: ['Jul 15', 'Jul 16', 'Jul 17', 'Jul 18', 'Jul 19', 'Jul 20', 'Today'],
+                    datasets: [{
+                        label: 'Blood Sugar',
+                        data: [125, 118, 132, 128, 135, 122, 127],
+                        borderColor: '#FF8C42',
+                        backgroundColor: 'rgba(255, 140, 66, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#FF8C42',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 80,
+                            max: 180,
+                            grid: {
+                                color: 'rgba(78, 205, 196, 0.1)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + ' mg/dL';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    elements: {
+                        point: {
+                            hoverRadius: 8
+                        }
+                    }
+                }
+            });
+
+            // Weekly Overview Chart
+            const ctx2 = document.getElementById('weeklyChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['In Range', 'Above Range', 'Below Range'],
+                    datasets: [{
+                        data: [85, 12, 3],
+                        backgroundColor: ['#48BB78', '#ECC94B', '#E53E3E'],
+                        borderWidth: 0,
+                        cutout: '70%'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Modal functions
+        function openModal(type) {
+            const modals = {
+                'sugar': 'sugarModal',
+                'water': 'waterModal',
+                'exercise': 'exerciseModal'
+            };
+
+            const modalId = modals[type];
+            if (!modalId) return;
+
+            const modal = document.getElementById(modalId);
+            currentModal = modalId;
+
+            // Set current date and time
+            const now = new Date();
+            const localDateTime = now.getFullYear() + '-' +
+                String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                String(now.getDate()).padStart(2, '0') + 'T' +
+                String(now.getHours()).padStart(2, '0') + ':' +
+                String(now.getMinutes()).padStart(2, '0');
+
+            // Set time inputs based on modal type
+            if (type === 'sugar') {
+                document.getElementById('sugarTime').value = localDateTime;
+            } else if (type === 'water') {
+                document.getElementById('waterTime').value = localDateTime;
+            } else if (type === 'exercise') {
+                document.getElementById('exerciseTime').value = localDateTime;
+            }
+
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            if (currentModal) {
+                const modal = document.getElementById(currentModal);
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+
+                // Reset forms
+                const form = modal.querySelector('form');
+                if (form) form.reset();
+            }
+            currentModal = null;
+        }
+
+        // Handle form submissions
+        document.getElementById('sugarForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const reading = document.getElementById('sugarReading').value;
+            const time = document.getElementById('sugarTime').value;
+            const mealType = document.getElementById('mealType').value;
+
+            console.log('Saving sugar reading:', { reading, time, mealType });
+            showNotification(`Blood sugar reading of ${reading} mg/dL saved successfully!`, 'success');
+            closeModal();
+        });
+
+        document.getElementById('waterForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const amount = document.getElementById('waterAmount').value;
+            const unit = document.getElementById('waterUnit').value;
+            const time = document.getElementById('waterTime').value;
+            const source = document.getElementById('waterSource').value;
+
+            console.log('Saving water intake:', { amount, unit, time, source });
+            showNotification(`Water intake of ${amount} ${unit} saved successfully!`, 'success');
+            closeModal();
+        });
+
+        document.getElementById('exerciseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const type = document.getElementById('exerciseType').value;
+            const duration = document.getElementById('exerciseDuration').value;
+            const intensity = document.getElementById('exerciseIntensity').value;
+            const time = document.getElementById('exerciseTime').value;
+            const notes = document.getElementById('exerciseNotes').value;
+
+            console.log('Saving exercise:', { type, duration, intensity, time, notes });
+            showNotification(`${type} exercise (${duration} min) saved successfully!`, 'success');
+            closeModal();
+        });
+
+        // Close modal when clicking outside
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+        });
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
+                <span>${message}</span>
+            `;
+
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#48BB78' : '#4ECDC4'};
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 16px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+                z-index: 1001;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-weight: 600;
+                transform: translateX(100%);
+                transition: transform 0.3s ease-out;
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
+
+            // Animate progress bars
+            setTimeout(() => {
+                const progressBars = document.querySelectorAll('.progress-fill');
+                progressBars.forEach(bar => {
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 100);
+                });
+            }, 500);
+
+            // Add greeting based on time of day
+            const hour = new Date().getHours();
+            const welcomeTitle = document.querySelector('.welcome-title');
+            let greeting = 'Good morning';
+
+            if (hour >= 12 && hour < 17) {
+                greeting = 'Good afternoon';
+            } else if (hour >= 17) {
+                greeting = 'Good evening';
+            }
+
+            welcomeTitle.textContent = `${greeting}, User!`;
+        });
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
+                e.preventDefault();
+                openModal('sugar');
+            }
+
+            if ((e.ctrlKey || e.metaKey) && e.key === 'w') {
+                e.preventDefault();
+                openModal('water');
+            }
+
+            if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+                e.preventDefault();
+                openModal('exercise');
+            }
+
+            if (e.key === 'Escape' && currentModal) {
+                closeModal();
+            }
+        });
+
+        // Enhanced form validation
+        document.getElementById('sugarReading').addEventListener('input', function(e) {
+            const value = parseInt(e.target.value);
+            const inputGroup = e.target.closest('.input-group');
+
+            const existingMsg = inputGroup.querySelector('.validation-message');
+            if (existingMsg) {
+                existingMsg.remove();
+            }
+
+            if (value && (value < 50 || value > 400)) {
+                const message = document.createElement('div');
+                message.className = 'validation-message';
+                message.style.cssText = `
+                    color: #E53E3E;
+                    font-size: 0.8rem;
+                    margin-top: 0.25rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.25rem;
+                `;
+                message.innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Reading should be between 50-400 mg/dL
+                `;
+                inputGroup.appendChild(message);
+            }
+        });
+    </script>
+</body>
+</html>
