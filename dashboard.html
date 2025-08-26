@@ -360,6 +360,12 @@
             box-shadow: var(--shadow-md);
         }
 
+        .action-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .action-icon {
             font-size: 1.2rem;
         }
@@ -532,6 +538,12 @@
             box-shadow: var(--shadow-lg);
         }
 
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .btn-secondary {
             background: transparent;
             color: var(--text-primary);
@@ -542,6 +554,20 @@
             background: var(--primary-color);
             color: white;
             transform: translateY(-2px);
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         /* Animations */
@@ -651,7 +677,7 @@
 
                     <div class="quick-stats">
                         <div class="stat-item">
-                            <div class="stat-value">127</div>
+                            <div class="stat-value" id="currentReading">127</div>
                             <div class="stat-label">Current Reading</div>
                         </div>
                         <div class="stat-item">
@@ -698,10 +724,10 @@
                                 </div>
                             </div>
                             <div class="sugar-status">
-                                <div class="sugar-reading" style="color: var(--success-color); font-size: 2.2rem;">
+                                <div class="sugar-reading" style="color: var(--success-color); font-size: 2.2rem;" id="mainSugarReading">
                                     127<span class="sugar-unit" style="font-size: 0.8rem;">mg/dL</span>
                                 </div>
-                                <div class="status-indicator status-normal">
+                                <div class="status-indicator status-normal" id="statusIndicator">
                                     <i class="fas fa-check-circle"></i>
                                     Normal
                                 </div>
@@ -719,28 +745,28 @@
                             <div class="progress-item">
                                 <div class="progress-header">
                                     <span class="progress-label">Readings Logged</span>
-                                    <span class="progress-value">3/4</span>
+                                    <span class="progress-value" id="readingsProgress">3/4</span>
                                 </div>
                                 <div class="progress-bar">
-                                    <div class="progress-fill" style="width: 75%;"></div>
+                                    <div class="progress-fill" id="readingsProgressBar" style="width: 75%;"></div>
                                 </div>
                             </div>
                             <div class="progress-item">
                                 <div class="progress-header">
                                     <span class="progress-label">Water Intake</span>
-                                    <span class="progress-value">6/8 cups</span>
+                                    <span class="progress-value" id="waterProgress">6/8 cups</span>
                                 </div>
                                 <div class="progress-bar">
-                                    <div class="progress-fill" style="width: 75%;"></div>
+                                    <div class="progress-fill" id="waterProgressBar" style="width: 75%;"></div>
                                 </div>
                             </div>
                             <div class="progress-item">
                                 <div class="progress-header">
                                     <span class="progress-label">Exercise Minutes</span>
-                                    <span class="progress-value">22/30 min</span>
+                                    <span class="progress-value" id="exerciseProgress">22/30 min</span>
                                 </div>
                                 <div class="progress-bar">
-                                    <div class="progress-fill" style="width: 73%;"></div>
+                                    <div class="progress-fill" id="exerciseProgressBar" style="width: 73%;"></div>
                                 </div>
                             </div>
                         </div>
@@ -765,15 +791,15 @@
                             <h3 class="card-title">Quick Actions</h3>
                         </div>
                         <div class="quick-actions">
-                            <button class="action-btn" onclick="openModal('sugar')">
+                            <button class="action-btn" onclick="openModal('sugar')" id="sugarBtn">
                                 <i class="fas fa-tint action-icon" style="color: var(--error-color);"></i>
                                 Log Sugar Reading
                             </button>
-                            <button class="action-btn" onclick="openModal('water')">
+                            <button class="action-btn" onclick="openModal('water')" id="waterBtn">
                                 <i class="fas fa-glass-water action-icon" style="color: var(--info-color);"></i>
                                 Log Water Intake
                             </button>
-                            <button class="action-btn" onclick="openModal('exercise')">
+                            <button class="action-btn" onclick="openModal('exercise')" id="exerciseBtn">
                                 <i class="fas fa-dumbbell action-icon" style="color: var(--success-color);"></i>
                                 Log Exercise
                             </button>
@@ -830,27 +856,8 @@
                                 <i class="fas fa-history"></i>
                             </div>
                         </div>
-                        <div class="readings-list">
-                            <div class="reading-item">
-                                <span class="reading-time">Today 2:30 PM</span>
-                                <span class="reading-value" style="color: var(--success-color);">127 mg/dL</span>
-                            </div>
-                            <div class="reading-item">
-                                <span class="reading-time">Today 8:00 AM</span>
-                                <span class="reading-value" style="color: var(--success-color);">98 mg/dL</span>
-                            </div>
-                            <div class="reading-item">
-                                <span class="reading-time">Yesterday 7:45 PM</span>
-                                <span class="reading-value" style="color: var(--warning-color);">156 mg/dL</span>
-                            </div>
-                            <div class="reading-item">
-                                <span class="reading-time">Yesterday 1:15 PM</span>
-                                <span class="reading-value" style="color: var(--success-color);">134 mg/dL</span>
-                            </div>
-                            <div class="reading-item">
-                                <span class="reading-time">Yesterday 7:30 AM</span>
-                                <span class="reading-value" style="color: var(--success-color);">105 mg/dL</span>
-                            </div>
+                        <div class="readings-list" id="recentReadingsList">
+                            <!-- Readings will be loaded dynamically -->
                         </div>
                     </div>
                 </div>
@@ -888,7 +895,7 @@
                 </div>
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Reading</button>
+                    <button type="submit" class="btn btn-primary" id="sugarSubmitBtn">Save Reading</button>
                 </div>
             </form>
         </div>
@@ -935,7 +942,7 @@
                 </div>
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Intake</button>
+                    <button type="submit" class="btn btn-primary" id="waterSubmitBtn">Save Intake</button>
                 </div>
             </form>
         </div>
@@ -988,33 +995,185 @@
                 </div>
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Exercise</button>
+                    <button type="submit" class="btn btn-primary" id="exerciseSubmitBtn">Save Exercise</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        // Mock data for charts and dashboard
-        const mockData = {
-            sugarReadings: [
-                { date: '2025-07-15', time: '07:30', value: 105, meal: 'fasting' },
-                { date: '2025-07-15', time: '13:15', value: 134, meal: 'post-lunch' },
-                { date: '2025-07-15', time: '19:45', value: 156, meal: 'post-dinner' },
-                { date: '2025-07-16', time: '08:00', value: 98, meal: 'fasting' },
-                { date: '2025-07-16', time: '14:30', value: 127, meal: 'post-lunch' },
-                { date: '2025-07-17', time: '07:45', value: 102, meal: 'fasting' },
-                { date: '2025-07-17', time: '13:00', value: 145, meal: 'post-lunch' }
-            ]
+        // Configuration for your API endpoint
+        const API_CONFIG = {
+            baseUrl: 'http://localhost:8000', // Update this to match your Flask API URL
+            endpoints: {
+                sugarReadings: '/api/sugar-readings',
+                waterIntake: '/api/water-intake',
+                exercise: '/api/exercise',
+                getReadings: '/api/readings',
+                getDashboardData: '/api/dashboard-data'
+            }
         };
 
+        // Global variables
         let currentModal = null;
+        let sugarTrendChart = null;
+        let weeklyChart = null;
+
+        // API Helper functions
+        async function makeAPICall(endpoint, method = 'GET', data = null) {
+            const url = `${API_CONFIG.baseUrl}${endpoint}`;
+            const options = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            };
+
+            if (data && method !== 'GET') {
+                options.body = JSON.stringify(data);
+            }
+
+            try {
+                const response = await fetch(url, options);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('API call failed:', error);
+                showNotification('Connection error. Please try again.', 'error');
+                throw error;
+            }
+        }
+
+        // Load dashboard data from API
+        async function loadDashboardData() {
+            try {
+                const data = await makeAPICall(API_CONFIG.endpoints.getDashboardData);
+                updateDashboardUI(data);
+            } catch (error) {
+                console.error('Failed to load dashboard data:', error);
+                // Use fallback data if API fails
+                loadFallbackData();
+            }
+        }
+
+        // Load recent readings
+        async function loadRecentReadings() {
+            try {
+                const readings = await makeAPICall(`${API_CONFIG.endpoints.getReadings}?limit=5`);
+                updateRecentReadingsList(readings);
+            } catch (error) {
+                console.error('Failed to load recent readings:', error);
+                // Show placeholder data
+                updateRecentReadingsList([]);
+            }
+        }
+
+        // Update recent readings list
+        function updateRecentReadingsList(readings) {
+            const readingsList = document.getElementById('recentReadingsList');
+
+            if (!readings || readings.length === 0) {
+                readingsList.innerHTML = `
+                    <div class="reading-item">
+                        <span class="reading-time">No readings yet</span>
+                        <span class="reading-value">-- mg/dL</span>
+                    </div>
+                `;
+                return;
+            }
+
+            readingsList.innerHTML = readings.map(reading => {
+                const date = new Date(reading.timestamp);
+                const timeStr = date.toLocaleDateString() === new Date().toLocaleDateString()
+                    ? `Today ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`
+                    : date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                const colorClass = getReadingColor(reading.value);
+
+                return `
+                    <div class="reading-item">
+                        <span class="reading-time">${timeStr}</span>
+                        <span class="reading-value" style="color: var(--${colorClass}-color);">${reading.value} mg/dL</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Determine color based on blood sugar reading
+        function getReadingColor(value) {
+            if (value < 70 || value > 180) return 'error';
+            if (value < 80 || value > 140) return 'warning';
+            return 'success';
+        }
+
+        // Update dashboard UI with loaded data
+        function updateDashboardUI(data) {
+            if (data.currentReading) {
+                const currentElement = document.getElementById('currentReading');
+                const mainReadingElement = document.getElementById('mainSugarReading');
+                const statusElement = document.getElementById('statusIndicator');
+
+                if (currentElement) currentElement.textContent = data.currentReading.value;
+                if (mainReadingElement) {
+                    const colorClass = getReadingColor(data.currentReading.value);
+                    mainReadingElement.innerHTML = `${data.currentReading.value}<span class="sugar-unit" style="font-size: 0.8rem;">mg/dL</span>`;
+                    mainReadingElement.style.color = `var(--${colorClass}-color)`;
+
+                    // Update status indicator
+                    const statusText = data.currentReading.value < 70 || data.currentReading.value > 180 ? 'High Risk' :
+                                     data.currentReading.value < 80 || data.currentReading.value > 140 ? 'Warning' : 'Normal';
+                    const statusIcon = statusText === 'Normal' ? 'fa-check-circle' :
+                                      statusText === 'Warning' ? 'fa-exclamation-triangle' : 'fa-times-circle';
+                    const statusClass = statusText === 'Normal' ? 'status-normal' :
+                                       statusText === 'Warning' ? 'status-warning' : 'status-danger';
+
+                    statusElement.className = `status-indicator ${statusClass}`;
+                    statusElement.innerHTML = `<i class="fas ${statusIcon}"></i> ${statusText}`;
+                }
+            }
+
+            // Update progress bars
+            if (data.todaysGoals) {
+                updateProgressBars(data.todaysGoals);
+            }
+
+            // Update charts
+            if (data.chartData) {
+                updateCharts(data.chartData);
+            }
+        }
+
+        // Update progress bars
+        function updateProgressBars(goals) {
+            const elements = {
+                readings: { progress: 'readingsProgress', bar: 'readingsProgressBar' },
+                water: { progress: 'waterProgress', bar: 'waterProgressBar' },
+                exercise: { progress: 'exerciseProgress', bar: 'exerciseProgressBar' }
+            };
+
+            Object.keys(elements).forEach(key => {
+                if (goals[key]) {
+                    const progressEl = document.getElementById(elements[key].progress);
+                    const barEl = document.getElementById(elements[key].bar);
+
+                    if (progressEl && barEl) {
+                        progressEl.textContent = `${goals[key].current}/${goals[key].target} ${goals[key].unit || ''}`;
+                        const percentage = (goals[key].current / goals[key].target) * 100;
+                        barEl.style.width = `${Math.min(percentage, 100)}%`;
+                    }
+                }
+            });
+        }
 
         // Initialize charts
         function initCharts() {
             // Sugar Trend Chart
             const ctx1 = document.getElementById('sugarTrendChart').getContext('2d');
-            new Chart(ctx1, {
+            sugarTrendChart = new Chart(ctx1, {
                 type: 'line',
                 data: {
                     labels: ['Jul 15', 'Jul 16', 'Jul 17', 'Jul 18', 'Jul 19', 'Jul 20', 'Today'],
@@ -1070,7 +1229,7 @@
 
             // Weekly Overview Chart
             const ctx2 = document.getElementById('weeklyChart').getContext('2d');
-            new Chart(ctx2, {
+            weeklyChart = new Chart(ctx2, {
                 type: 'doughnut',
                 data: {
                     labels: ['In Range', 'Above Range', 'Below Range'],
@@ -1098,6 +1257,33 @@
                     }
                 }
             });
+        }
+
+        // Update charts with new data
+        function updateCharts(chartData) {
+            if (chartData.sugarTrend && sugarTrendChart) {
+                sugarTrendChart.data.labels = chartData.sugarTrend.labels;
+                sugarTrendChart.data.datasets[0].data = chartData.sugarTrend.data;
+                sugarTrendChart.update();
+            }
+
+            if (chartData.weeklyOverview && weeklyChart) {
+                weeklyChart.data.datasets[0].data = chartData.weeklyOverview.data;
+                weeklyChart.update();
+            }
+        }
+
+        // Fallback data when API is not available
+        function loadFallbackData() {
+            const fallbackData = {
+                currentReading: { value: 127, timestamp: new Date() },
+                todaysGoals: {
+                    readings: { current: 3, target: 4, unit: '' },
+                    water: { current: 6, target: 8, unit: 'cups' },
+                    exercise: { current: 22, target: 30, unit: 'min' }
+                }
+            };
+            updateDashboardUI(fallbackData);
         }
 
         // Modal functions
@@ -1141,48 +1327,127 @@
                 modal.style.display = 'none';
                 document.body.style.overflow = 'auto';
 
-                // Reset forms
+                // Reset forms and buttons
                 const form = modal.querySelector('form');
                 if (form) form.reset();
+
+                // Reset submit buttons
+                const submitBtns = ['sugarSubmitBtn', 'waterSubmitBtn', 'exerciseSubmitBtn'];
+                submitBtns.forEach(btnId => {
+                    const btn = document.getElementById(btnId);
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = btn.innerHTML.replace('<div class="loading-spinner"></div>', '');
+                    }
+                });
             }
             currentModal = null;
         }
 
+        // Show loading state on button
+        function setButtonLoading(buttonId, loading = true) {
+            const button = document.getElementById(buttonId);
+            if (!button) return;
+
+            if (loading) {
+                button.disabled = true;
+                button.innerHTML = '<div class="loading-spinner"></div> Saving...';
+            } else {
+                button.disabled = false;
+                // Reset to original text
+                const originalTexts = {
+                    'sugarSubmitBtn': 'Save Reading',
+                    'waterSubmitBtn': 'Save Intake',
+                    'exerciseSubmitBtn': 'Save Exercise'
+                };
+                button.innerHTML = originalTexts[buttonId] || 'Save';
+            }
+        }
+
         // Handle form submissions
-        document.getElementById('sugarForm').addEventListener('submit', function(e) {
+        document.getElementById('sugarForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const reading = document.getElementById('sugarReading').value;
-            const time = document.getElementById('sugarTime').value;
-            const mealType = document.getElementById('mealType').value;
+            setButtonLoading('sugarSubmitBtn', true);
 
-            console.log('Saving sugar reading:', { reading, time, mealType });
-            showNotification(`Blood sugar reading of ${reading} mg/dL saved successfully!`, 'success');
-            closeModal();
+            const formData = {
+                value: parseFloat(document.getElementById('sugarReading').value),
+                timestamp: document.getElementById('sugarTime').value,
+                meal_context: document.getElementById('mealType').value,
+                user_id: 'user_001' // You might want to get this from session/auth
+            };
+
+            try {
+                await makeAPICall(API_CONFIG.endpoints.sugarReadings, 'POST', formData);
+                showNotification(`Blood sugar reading of ${formData.value} mg/dL saved successfully!`, 'success');
+                closeModal();
+
+                // Refresh dashboard data
+                await loadDashboardData();
+                await loadRecentReadings();
+
+            } catch (error) {
+                console.error('Failed to save sugar reading:', error);
+                showNotification('Failed to save reading. Please try again.', 'error');
+            } finally {
+                setButtonLoading('sugarSubmitBtn', false);
+            }
         });
 
-        document.getElementById('waterForm').addEventListener('submit', function(e) {
+        document.getElementById('waterForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const amount = document.getElementById('waterAmount').value;
-            const unit = document.getElementById('waterUnit').value;
-            const time = document.getElementById('waterTime').value;
-            const source = document.getElementById('waterSource').value;
+            setButtonLoading('waterSubmitBtn', true);
 
-            console.log('Saving water intake:', { amount, unit, time, source });
-            showNotification(`Water intake of ${amount} ${unit} saved successfully!`, 'success');
-            closeModal();
+            const formData = {
+                amount: parseFloat(document.getElementById('waterAmount').value),
+                unit: document.getElementById('waterUnit').value,
+                timestamp: document.getElementById('waterTime').value,
+                source: document.getElementById('waterSource').value || null,
+                user_id: 'user_001'
+            };
+
+            try {
+                await makeAPICall(API_CONFIG.endpoints.waterIntake, 'POST', formData);
+                showNotification(`Water intake of ${formData.amount} ${formData.unit} saved successfully!`, 'success');
+                closeModal();
+
+                // Refresh dashboard data
+                await loadDashboardData();
+
+            } catch (error) {
+                console.error('Failed to save water intake:', error);
+                showNotification('Failed to save water intake. Please try again.', 'error');
+            } finally {
+                setButtonLoading('waterSubmitBtn', false);
+            }
         });
 
-        document.getElementById('exerciseForm').addEventListener('submit', function(e) {
+        document.getElementById('exerciseForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const type = document.getElementById('exerciseType').value;
-            const duration = document.getElementById('exerciseDuration').value;
-            const intensity = document.getElementById('exerciseIntensity').value;
-            const time = document.getElementById('exerciseTime').value;
-            const notes = document.getElementById('exerciseNotes').value;
+            setButtonLoading('exerciseSubmitBtn', true);
 
-            console.log('Saving exercise:', { type, duration, intensity, time, notes });
-            showNotification(`${type} exercise (${duration} min) saved successfully!`, 'success');
-            closeModal();
+            const formData = {
+                exercise_type: document.getElementById('exerciseType').value,
+                duration_minutes: parseInt(document.getElementById('exerciseDuration').value),
+                intensity: document.getElementById('exerciseIntensity').value,
+                timestamp: document.getElementById('exerciseTime').value,
+                notes: document.getElementById('exerciseNotes').value || null,
+                user_id: 'user_001'
+            };
+
+            try {
+                await makeAPICall(API_CONFIG.endpoints.exercise, 'POST', formData);
+                showNotification(`${formData.exercise_type} exercise (${formData.duration_minutes} min) saved successfully!`, 'success');
+                closeModal();
+
+                // Refresh dashboard data
+                await loadDashboardData();
+
+            } catch (error) {
+                console.error('Failed to save exercise:', error);
+                showNotification('Failed to save exercise. Please try again.', 'error');
+            } finally {
+                setButtonLoading('exerciseSubmitBtn', false);
+            }
         });
 
         // Close modal when clicking outside
@@ -1199,7 +1464,8 @@
             const notification = document.createElement('div');
             notification.className = `notification notification-${type}`;
             notification.innerHTML = `
-                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
+                <i class="fas ${type === 'success' ? 'fa-check-circle' :
+                              type === 'error' ? 'fa-times-circle' : 'fa-info-circle'}"></i>
                 <span>${message}</span>
             `;
 
@@ -1207,7 +1473,8 @@
                 position: fixed;
                 top: 20px;
                 right: 20px;
-                background: ${type === 'success' ? '#48BB78' : '#4ECDC4'};
+                background: ${type === 'success' ? '#48BB78' :
+                             type === 'error' ? '#E53E3E' : '#4ECDC4'};
                 color: white;
                 padding: 1rem 1.5rem;
                 border-radius: 16px;
@@ -1219,6 +1486,7 @@
                 font-weight: 600;
                 transform: translateX(100%);
                 transition: transform 0.3s ease-out;
+                max-width: 350px;
             `;
 
             document.body.appendChild(notification);
@@ -1230,14 +1498,20 @@
             setTimeout(() => {
                 notification.style.transform = 'translateX(100%)';
                 setTimeout(() => {
-                    document.body.removeChild(notification);
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
                 }, 300);
             }, 3000);
         }
 
         // Initialize dashboard
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             initCharts();
+
+            // Load data from API
+            await loadDashboardData();
+            await loadRecentReadings();
 
             // Animate progress bars
             setTimeout(() => {
@@ -1315,6 +1589,11 @@
                 inputGroup.appendChild(message);
             }
         });
+
+        // Periodic data refresh (every 5 minutes)
+        setInterval(async () => {
+            await loadRecentReadings();
+        }, 5 * 60 * 1000);
     </script>
 </body>
 </html>
