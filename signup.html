@@ -585,6 +585,14 @@
                 </div>
 
                 <div class="input-group">
+                    <label for="email">Email</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="text" id="email" name="email" class="form-input" placeholder="Enter your email" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
                     <label for="password">Password</label>
                     <div class="input-wrapper">
                         <i class="fas fa-lock"></i>
@@ -634,7 +642,7 @@
 
     <script>
         // API endpoint for your local FastAPI backend
-        //const API_URL = 'http://127.0.0.1:8000';
+        //const API_BASE_URL = 'http://127.0.0.1:8000';
         const API_BASE_URL = "https://nutriapp-backend-mnnq.onrender.com";
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -711,9 +719,12 @@
                 const username = usernameInput.value.trim();
                 const password = passwordInput.value;
 
-                // Simple validation
-                if (!username || !password) {
-                    showMessage('Please enter both username and password.', 'error');
+                const emailInput = document.getElementById('email');
+                const email = emailInput.value.trim();
+
+
+                if (!username || !email || !password) {
+                    showMessage('Please enter username, email, and password.', 'error');
                     return;
                 }
 
@@ -731,7 +742,7 @@
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ username, password }),
+                        body: JSON.stringify({ username, email, password }),
                     });
 
                     const data = await response.json();

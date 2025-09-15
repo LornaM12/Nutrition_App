@@ -660,7 +660,7 @@
             </div>
         </div>
     </header>
-
+    
     <!-- Dashboard Main -->
     <main class="dashboard-main">
         <div class="container">
@@ -1002,6 +1002,11 @@
     </div>
 
     <script>
+        const userId = localStorage.getItem('user_id');
+        if (!userId) {
+          alert("Please log in first.");
+          window.location.href = "login.html"; // redirect if not logged in
+        }
         // Configuration for your API endpoint
         const API_CONFIG = {
             //baseUrl: 'http://localhost:8000', // Update this to match your Flask API URL
@@ -1014,6 +1019,60 @@
                 getDashboardData: '/api/dashboard-data'
             }
         };
+
+        //  Populate dashboard immediately after login
+        function populateDashboard(userData) {
+            // Greeting
+            document.querySelector(".user-name").textContent = userData.username || "User";
+            document.querySelector(".welcome-title").textContent = `Good morning, ${userData.username || "User"}!`;
+
+            // Last stats (handle blanks for new users)
+            const stats = userData.last_stats || {};
+
+            document.getElementById("currentReading").textContent = stats.current_reading ?? "--";
+            document.getElementById("mainSugarReading").innerHTML = 
+                stats.current_reading ? `${stats.current_reading}<span class="sugar-unit">mg/dL</span>` : "--";
+
+            document.querySelector(".quick-stats .stat-item:nth-child(2) .stat-value").textContent = 
+                stats.avg_a1c ? `${stats.avg_a1c}%` : "--";
+
+            document.querySelector(".quick-stats .stat-item:nth-child(3) .stat-value").textContent = 
+                stats.in_range ? `${stats.in_range}%` : "--";
+
+            document.querySelector(".quick-stats .stat-item:nth-child(4) .stat-value").textContent = 
+                stats.streak ? stats.streak : "--";
+
+            // Status indicator (basic example)
+            if (stats.current_reading) {
+                let statusText = "Normal";
+                let statusClass = "status-normal";
+                if (stats.current_reading > 180) {
+                    statusText = "High";
+                    statusClass = "status-high";
+                } else if (stats.current_reading < 70) {
+                    statusText = "Low";
+                    statusClass = "status-low";
+                }
+                const statusIndicator = document.getElementById("statusIndicator");
+                statusIndicator.className = `status-indicator ${statusClass}`;
+                statusIndicator.innerHTML = `<i class="fas fa-check-circle"></i> ${statusText}`;
+            } else {
+                document.getElementById("statusIndicator").innerHTML = "--";
+            }
+
+            // TODO: If you want charts to also load immediately, pass the readings dataset here
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const userData = JSON.parse(localStorage.getItem("userData"));
+            if (userData) {
+                populateDashboard(userData);
+            }
+        });
+
+
+
+
 
         // Global variables
         let currentModal = null;
@@ -1052,7 +1111,8 @@
         // Load dashboard data from API
         async function loadDashboardData() {
             try {
-                const data = await makeAPICall(API_CONFIG.endpoints.getDashboardData);
+                const userId = localStorage.getItem("user_id"); // or "userId" depending on what you stored at login
+                const data = await makeAPICall(`${API_CONFIG.endpoints.getDashboardData}?user_id=${userId}`);
                 updateDashboardUI(data);
             } catch (error) {
                 console.error('Failed to load dashboard data:', error);
@@ -1061,17 +1121,21 @@
             }
         }
 
+
         // Load recent readings
         async function loadRecentReadings() {
             try {
-                const readings = await makeAPICall(`${API_CONFIG.endpoints.getReadings}?limit=5`);
+                const userId = localStorage.getItem("user_id"); // get user ID from login
+                const readings = await makeAPICall(
+                    `${API_CONFIG.endpoints.getReadings}?user_id=${userId}&limit=5`
+                );
                 updateRecentReadingsList(readings);
             } catch (error) {
                 console.error('Failed to load recent readings:', error);
-                // Show placeholder data
                 updateRecentReadingsList([]);
             }
         }
+
 
         // Update recent readings list
         function updateRecentReadingsList(readings) {
@@ -1374,7 +1438,7 @@
                 value: parseFloat(document.getElementById('sugarReading').value),
                 timestamp: document.getElementById('sugarTime').value,
                 meal_context: document.getElementById('mealType').value,
-                user_id: 'user_001' // You might want to get this from session/auth
+                user_id: userId // You might want to get this from session/auth
             };
 
             try {
@@ -1403,7 +1467,7 @@
                 unit: document.getElementById('waterUnit').value,
                 timestamp: document.getElementById('waterTime').value,
                 source: document.getElementById('waterSource').value || null,
-                user_id: 'user_001'
+                user_id: userId
             };
 
             try {
@@ -1432,7 +1496,7 @@
                 intensity: document.getElementById('exerciseIntensity').value,
                 timestamp: document.getElementById('exerciseTime').value,
                 notes: document.getElementById('exerciseNotes').value || null,
-                user_id: 'user_001'
+                user_id: userId
             };
 
             try {
@@ -1537,7 +1601,9 @@
                 greeting = 'Good evening';
             }
 
-            welcomeTitle.textContent = `${greeting}, User!`;
+            const username = localStorage.getItem('username') || 'User';
+            welcomeTitle.textContent = `${greeting}, ${username}!`;
+
         });
 
         // Add keyboard shortcuts

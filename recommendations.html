@@ -8,52 +8,729 @@
     <link rel="stylesheet" href="recommendations.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-</head>
-<body>
+        <style>
+            :root {
+                --primary-color: #FF8C42;
+                --primary-dark: #E67A38;
+                --secondary-color: #4ECDC4;
+                --accent-color: #45B7AA;
+                --bg-primary: #FEFFFE;
+                --bg-secondary: #F8FDF8;
+                --bg-hero: linear-gradient(135deg, #E8F8E8 0%, #F0FAF0 100%);
+                --text-primary: #2D3748;
+                --text-secondary: #4A5568;
+                --text-muted: #718096;
+                --success-color: #48BB78;
+                --warning-color: #ECC94B;
+                --error-color: #F56565;
+                --border-radius: 16px;
+                --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+                --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+                --shadow-lg: 0 10px 25px rgba(0,0,0,0.2);
+                --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
 
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                line-height: 1.6;
+                color: var(--text-primary);
+                background: var(--bg-primary);
+                overflow-x: hidden;
+            }
+
+            /* Header Styles - Consistent with index */
+            .main-header {
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+                transition: var(--transition);
+            }
+
+            /* This rule is what pushes the logo and the right-side elements to opposite ends */
+            .header-content {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1rem 0;
+            }
+
+            /* This new rule groups and aligns the navigation and buttons on the right */
+            .header-right {
+                display: flex;
+                align-items: center;
+                gap: 2rem;
+            }
+
+            /* This is the rule you provided, which now correctly centers content within the header-content */
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 20px;
+            }
+
+            .logo {
+                font-size: 1.8rem;
+                font-weight: 800;
+                color: var(--primary-color);
+                text-decoration: none;
+                position: relative;
+            }
+
+            .logo::after {
+                content: '';
+                position: absolute;
+                bottom: -4px;
+                left: 0;
+                width: 100%;
+                height: 3px;
+                background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+                border-radius: 2px;
+            }
+
+            .header-right {
+                display: flex;
+                align-items: center;
+                gap: 2rem; /* Creates space between the nav links and the user button */
+            }
+
+            .main-nav ul {
+                display: flex;
+                list-style: none;
+                gap: 2rem;
+            }
+
+            .main-nav a {
+                color: var(--text-primary);
+                text-decoration: none;
+                font-weight: 500;
+                transition: var(--transition);
+            }
+
+            .main-nav a:hover {
+                color: var(--primary-color);
+            }
+
+            .auth-buttons {
+                display: flex;
+                gap: 1rem;
+                align-items: center;
+            }
+
+            .user-dropdown {
+                position: relative;
+            }
+
+            .user-profile-btn {
+                background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+                color: white;
+                border: none;
+                padding: 0.75rem 1.5rem;
+                border-radius: var(--border-radius);
+                font-weight: 600;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                transition: var(--transition);
+            }
+
+            .user-profile-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-md);
+            }
+
+            .dropdown-content {
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: white;
+                border-radius: var(--border-radius);
+                box-shadow: var(--shadow-lg);
+                padding: 0.5rem 0;
+                min-width: 150px;
+                display: none;
+            }
+
+            .user-dropdown:hover .dropdown-content {
+                display: block;
+            }
+
+            .dropdown-content a {
+                display: block;
+                padding: 0.75rem 1rem;
+                color: var(--text-primary);
+                text-decoration: none;
+                transition: var(--transition);
+            }
+
+            .dropdown-content a:hover {
+                background: var(--bg-secondary);
+                color: var(--primary-color);
+            }
+
+            .btn-primary {
+                background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+                color: white;
+                text-decoration: none;
+                padding: 0.75rem 1.5rem;
+                border-radius: var(--border-radius);
+                font-weight: 600;
+                font-size: 0.9rem;
+                transition: var(--transition);
+                border: none;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .btn-primary::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+                transition: left 0.5s;
+            }
+
+            .btn-primary:hover::before {
+                left: 100%;
+            }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-lg);
+            }
+
+            .btn-secondary {
+                background: transparent;
+                color: var(--text-primary);
+                border: 2px solid var(--primary-color);
+                padding: 0.75rem 1.5rem;
+                border-radius: var(--border-radius);
+                text-decoration: none;
+                font-weight: 600;
+                transition: var(--transition);
+            }
+
+            .btn-secondary:hover {
+                background: var(--primary-color);
+                color: white;
+                transform: translateY(-2px);
+            }
+
+            /* Main Content Styles */
+            .recommendations-page-content {
+                padding-top: 100px;
+                min-height: 100vh;
+                background: var(--bg-hero);
+            }
+
+            .page-header {
+                text-align: center;
+                padding: 3rem 0;
+            }
+
+            .page-title {
+                font-size: 2.5rem;
+                font-weight: 800;
+                color: var(--text-primary);
+                margin-bottom: 1rem;
+                background: linear-gradient(135deg, var(--text-primary), var(--primary-color));
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            .page-subtitle {
+                font-size: 1.2rem;
+                color: var(--text-secondary);
+                max-width: 600px;
+                margin: 0 auto;
+            }
+
+            /* Form Section */
+            .input-form-section {
+                background: white;
+                border-radius: var(--border-radius);
+                padding: 2.5rem;
+                margin: 2rem 0;
+                box-shadow: var(--shadow-md);
+                max-width: 800px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .reading-mode-selector {
+                background: var(--bg-secondary);
+                border-radius: var(--border-radius);
+                padding: 1.5rem;
+                margin-bottom: 2rem;
+            }
+
+            .mode-options {
+                display: flex;
+                gap: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .mode-option {
+                flex: 1;
+                position: relative;
+            }
+
+            .mode-option input[type="radio"] {
+                position: absolute;
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+
+            .mode-option label {
+                display: block;
+                background: white;
+                border: 2px solid #e2e8f0;
+                border-radius: var(--border-radius);
+                padding: 1rem;
+                cursor: pointer;
+                transition: var(--transition);
+                text-align: center;
+            }
+
+            .mode-option input[type="radio"]:checked + label {
+                border-color: var(--primary-color);
+                background: rgba(255, 140, 66, 0.1);
+                color: var(--primary-color);
+            }
+
+            .mode-option label:hover {
+                border-color: var(--accent-color);
+            }
+
+            .mode-option i {
+                display: block;
+                font-size: 1.5rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .form-group {
+                margin-bottom: 1.5rem;
+            }
+
+            .form-group label {
+                display: block;
+                font-weight: 600;
+                color: var(--text-primary);
+                margin-bottom: 0.5rem;
+            }
+
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                width: 100%;
+                padding: 0.75rem;
+                border: 2px solid #e2e8f0;
+                border-radius: var(--border-radius);
+                font-size: 1rem;
+                transition: var(--transition);
+                background: white;
+            }
+
+            .form-group input:focus,
+            .form-group select:focus,
+            .form-group textarea:focus {
+                outline: none;
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.1);
+            }
+
+            .manual-inputs {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+
+            .hidden {
+                display: none !important;
+            }
+
+            /* Status Messages */
+            .status-message {
+                padding: 1rem;
+                border-radius: var(--border-radius);
+                margin: 1rem 0;
+                display: none;
+                font-weight: 500;
+            }
+
+            .loading-message {
+                background: rgba(78, 205, 196, 0.1);
+                color: var(--secondary-color);
+                border: 1px solid var(--secondary-color);
+            }
+
+            .error-message {
+                background: rgba(245, 101, 101, 0.1);
+                color: var(--error-color);
+                border: 1px solid var(--error-color);
+            }
+
+            .success-message {
+                background: rgba(72, 187, 120, 0.1);
+                color: var(--success-color);
+                border: 1px solid var(--success-color);
+            }
+
+            .latest-readings-info {
+                background: rgba(78, 205, 196, 0.1);
+                border: 1px solid var(--secondary-color);
+                border-radius: var(--border-radius);
+                padding: 1rem;
+                margin-top: 1rem;
+                display: none;
+            }
+
+            .reading-values {
+                display: flex;
+                gap: 2rem;
+                margin-top: 0.5rem;
+            }
+
+            .reading-value {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .reading-value i {
+                color: var(--secondary-color);
+            }
+
+            /* Recommendations Output */
+            .recommendations-output {
+                margin-top: 2rem;
+            }
+
+            .recommendations-list {
+                list-style: none;
+                display: grid;
+                gap: 1rem;
+            }
+
+            .recommendation-item {
+                background: var(--bg-secondary);
+                padding: 1rem;
+                border-radius: var(--border-radius);
+                border-left: 4px solid var(--primary-color);
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .recommendation-item i {
+                color: var(--primary-color);
+                font-size: 1.2rem;
+            }
+
+            /* Feedback Section */
+            .feedback-trigger {
+                background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: var(--border-radius);
+                cursor: pointer;
+                margin-top: 2rem;
+                text-align: center;
+                font-weight: 600;
+                transition: var(--transition);
+            }
+
+            .feedback-trigger:hover {
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-md);
+            }
+
+            /* Modal Styles */
+            .feedback-modal {
+                display: none;
+                position: fixed;
+                z-index: 2000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(5px);
+            }
+
+            .feedback-modal.show-modal {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .feedback-modal-content {
+                background: white;
+                padding: 2rem;
+                border-radius: var(--border-radius);
+                width: 90%;
+                max-width: 500px;
+                position: relative;
+                animation: modalSlideIn 0.3s ease-out;
+            }
+
+            .close-button {
+                position: absolute;
+                top: 1rem;
+                right: 1.5rem;
+                font-size: 2rem;
+                cursor: pointer;
+                color: var(--text-muted);
+                transition: var(--transition);
+            }
+
+            .close-button:hover {
+                color: var(--error-color);
+            }
+
+            .rating-stars {
+                display: flex;
+                gap: 0.5rem;
+                margin: 0.5rem 0;
+                justify-content: center;
+            }
+
+            .rating-stars i {
+                font-size: 2rem;
+                color: var(--text-muted);
+                cursor: pointer;
+                transition: var(--transition);
+            }
+
+            .rating-stars i:hover,
+            .rating-stars i.fas {
+                color: var(--warning-color);
+            }
+
+            /* Footer */
+            .main-footer {
+                background: var(--text-primary);
+                color: white;
+                padding: 3rem 0;
+                text-align: center;
+                margin-top: 3rem;
+            }
+
+            .footer-content {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 2rem;
+                margin-bottom: 2rem;
+            }
+
+            .contact-email-link {
+                color: var(--primary-color);
+                text-decoration: none;
+                font-weight: 600;
+            }
+
+            /* Animations */
+            @keyframes modalSlideIn {
+                from {
+                    opacity: 0;
+                    transform: scale(0.9);
+                }
+                to {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+            }
+
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+
+            .fade-in {
+                animation: fadeIn 0.5s ease-out;
+            }
+
+            /* Responsive Design */
+            @media (max-width: 768px) {
+                .container {
+                    padding: 0 1rem;
+                }
+
+                .page-title {
+                    font-size: 2rem;
+                }
+
+                .input-form-section {
+                    padding: 1.5rem;
+                }
+
+                .mode-options {
+                    flex-direction: column;
+                }
+
+                .manual-inputs {
+                    grid-template-columns: 1fr;
+                }
+
+                .reading-values {
+                    flex-direction: column;
+                    gap: 0.5rem;
+                }
+
+                .header-content {
+                    flex-wrap: wrap;
+                    gap: 1rem;
+                }
+
+                .main-nav {
+                    order: 3;
+                    flex-basis: 100%;
+                }
+
+                .main-nav ul {
+                    justify-content: center;
+                    padding-top: 1rem;
+                    border-top: 1px solid rgba(255, 140, 66, 0.2);
+                }
+            }
+
+            @media (max-width: 480px) {
+                .page-title {
+                    font-size: 1.8rem;
+                }
+
+                .input-form-section {
+                    padding: 1rem;
+                }
+
+                .feedback-modal-content {
+                    width: 95%;
+                    padding: 1.5rem;
+                }
+            }
+        </style>
+    </head>
+<body>
     <header class="main-header">
-        <div class="container">
-            <div class="logo">NutriApp</div>
-            <nav class="main-nav">
-                <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="recommendations.html">Get Recommendations</a></li>
-                </ul>
-            </nav>
-            <div class="user-dropdown" id="userDropdown" style="display:none;">
-                <button class="user-profile-btn">
-                    <i class="fas fa-user-circle"></i> Hi, User!
-                </button>
-                <div class="dropdown-content">
-                    <a href="#" id="logoutBtn">Log Out</a>
+        <div class="header-content">
+            <div class="container">
+                <a href="index.html" class="logo">NutriApp</a>
+
+                <div class="header-right">
+                    <nav class="main-nav">
+                        <ul>
+                            <li><a href="index.html">Home</a></li>
+                            <li><a href="dashboard.html">Dashboard</a></li>
+                        </ul>
+                    </nav>
+                    <div class="user-dropdown" id="userDropdown" style="display:none;">
+                        <button class="user-profile-btn">
+                            <i class="fas fa-user-circle"></i> Hi, User!
+                        </button>
+                        <div class="dropdown-content">
+                            <a href="#" id="logoutBtn">Log Out</a>
+                        </div>
+                    </div>
+                    <div class="auth-buttons" id="authButtons" style="display:none;">
+                        <a href="login.html" class="btn-secondary">Log In</a>
+                        <a href="signup.html" class="btn-primary">Sign Up</a>
+                    </div>
                 </div>
-            </div>
-            <div class="auth-buttons" id="authButtons" style="display:none;">
-                <a href="login.html" class="btn-primary auth-btn">Log In</a>
-                <a href="signup.html" class="btn-primary auth-btn">Sign Up</a>
             </div>
         </div>
     </header>
 
     <main class="recommendations-page-content">
-        <div class="container recommendations-content-wrapper">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">Get Your Personalized Meal Plan</h1>
+                <p class="page-subtitle">Enter your blood sugar levels and preferences to receive AI-powered dietary recommendations tailored to your diabetes management needs.</p>
+            </div>
+
             <section class="input-form-section">
-                <h2>Get Your Personalized Meal Plan</h2>
-                <p>Enter your blood sugar levels and desired meal type to get recommendations.</p>
+                <div class="reading-mode-selector">
+                    <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Choose Your Input Method</h3>
+                    <div class="mode-options">
+                        <div class="mode-option">
+                            <input type="radio" id="manual_mode" name="input_mode" value="manual" checked>
+                            <label for="manual_mode">
+                                <i class="fas fa-edit"></i>
+                                <div>Manual Entry</div>
+                                <small>Enter new readings</small>
+                            </label>
+                        </div>
+                        <div class="mode-option">
+                            <input type="radio" id="latest_mode" name="input_mode" value="latest">
+                            <label for="latest_mode">
+                                <i class="fas fa-history"></i>
+                                <div>Use Latest Readings</div>
+                                <small>From your dashboard</small>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div id="latestReadingsInfo" class="latest-readings-info">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Your Latest Readings:</strong>
+                        </div>
+                        <div class="reading-values">
+                            <div class="reading-value">
+                                <i class="fas fa-tint"></i>
+                                <span>FBS: <span id="latestFbs">--</span> mg/dL</span>
+                            </div>
+                            <div class="reading-value">
+                                <i class="fas fa-heartbeat"></i>
+                                <span>RBS: <span id="latestRbs">--</span> mg/dL</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <form id="recommendationForm" class="recommendation-form">
-                    <div class="form-group">
-                        <label for="fbs_level">Fasting Blood Sugar (FBS) (mg/dL):</label>
-                        <input type="number" id="fbs_level" name="fbs_level" placeholder="e.g., 90">
+                    <div id="manualInputs" class="manual-inputs">
+                        <div class="form-group">
+                            <label for="fbs_level">
+                                <i class="fas fa-tint"></i>
+                                Fasting Blood Sugar (FBS) (mg/dL):
+                            </label>
+                            <input type="number" id="fbs_level" name="fbs_level" placeholder="e.g., 90">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="rbs_level">
+                                <i class="fas fa-heartbeat"></i>
+                                Random Blood Sugar (RBS) (mg/dL):
+                            </label>
+                            <input type="number" id="rbs_level" name="rbs_level" placeholder="e.g., 120">
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="rbs_level">Random Blood Sugar (RBS) (mg/dL):</label>
-                        <input type="number" id="rbs_level" name="rbs_level" placeholder="e.g., 120">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="meal_type">Meal Type:</label>
+                        <label for="meal_type">
+                            <i class="fas fa-utensils"></i>
+                            Meal Type:
+                        </label>
                         <select id="meal_type" name="meal_type" required>
                             <option value="breakfast">Breakfast</option>
                             <option value="lunch" selected>Lunch</option>
@@ -63,41 +740,65 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="num_alternatives">Number of Foods per Category:</label>
+                        <label for="num_alternatives">
+                            <i class="fas fa-list-ol"></i>
+                            Number of Foods per Category:
+                        </label>
                         <input type="number" id="num_alternatives" name="num_alternatives_per_slot" value="1" min="1" max="5">
                     </div>
 
-                    <button type="submit" class="btn-primary">Get Meals!</button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-rocket"></i>
+                        Get My Meal Plan
+                    </button>
                 </form>
 
-                <div id="recommendationsOutput" class="recommendations-output"></div>
-                <div id="errorMessage" class="error-message"></div>
-                <div id="loadingMessage" class="loading-message" style="display:none;">Loading recommendations...</div>
-                <div id="noRecommendationsMessage" class="no-recommendations-message" style="display:none;">No specific recommendations found. Try adjusting your inputs.</div>
-
-                <div id="feedbackTrigger" class="feedback-trigger">
-                    <i class="fas fa-external-link-alt"></i> Share your feedback with us
+                <div id="loadingMessage" class="status-message loading-message">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Analyzing your data and generating personalized recommendations...
                 </div>
 
-            </section>
+                <div id="errorMessage" class="status-message error-message"></div>
 
+                <div id="noRecommendationsMessage" class="status-message" style="display:none; background: rgba(236, 201, 75, 0.1); color: var(--warning-color); border: 1px solid var(--warning-color);">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    No specific recommendations found. Try adjusting your inputs or contact support.
+                </div>
+
+                <div id="recommendationsOutput" class="recommendations-output"></div>
+
+                <div id="feedbackTrigger" class="feedback-trigger">
+                    <i class="fas fa-comment"></i> Share Your Feedback With Us
+                </div>
+            </section>
         </div>
     </main>
 
     <footer class="main-footer">
         <div class="container">
-            <p>Contact us: <a href="mailto:info@convergenceai.io" class="contact-email-link">info@convergenceai.io</a></p>
-            <div class="footer-social-icons">
+            <div class="footer-content">
+                <div>
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">NutriApp</h3>
+                    <p>Empowering diabetes management through intelligent nutrition.</p>
+                </div>
+                <div>
+                    <h4 style="margin-bottom: 1rem;">Contact Us</h4>
+                    <p>Email: <a href="mailto:info@convergenceai.io" class="contact-email-link">info@convergenceai.io</a></p>
+                </div>
+            </div>
+            <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 2rem; margin-top: 2rem; text-align: center; color: var(--text-muted);">
+                <p>&copy; 2025 NutriApp. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
+    <!-- Feedback Modal -->
     <div id="feedbackModal" class="feedback-modal">
         <div class="feedback-modal-content">
             <span class="close-button" id="closeFeedbackModal">&times;</span>
             <section class="feedback-section">
-                <h2>Share Your Feedback</h2>
-                <p>Help us improve! What do you think about NutriApp?</p>
+                <h2 style="margin-bottom: 1rem; text-align: center; color: var(--text-primary);">Share Your Feedback</h2>
+                <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">Help us improve! What do you think about NutriApp?</p>
                 <form id="feedbackForm" class="feedback-form">
                     <div class="form-group">
                         <label for="rating">Overall Rating:</label>
@@ -123,8 +824,8 @@
 
                     <button type="submit" class="btn-primary">Submit Feedback</button>
                 </form>
-                <div id="feedbackMessage" class="feedback-message"></div>
-                <div id="feedbackErrorMessage" class="error-message"></div>
+                <div id="feedbackMessage" class="status-message success-message"></div>
+                <div id="feedbackErrorMessage" class="status-message error-message"></div>
             </section>
         </div>
     </div>

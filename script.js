@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorMessage = document.getElementById('errorMessage');
     const noRecommendationsMessage = document.getElementById('noRecommendationsMessage');
 
+    // ✅ New: Checkbox to use latest readings from dashboard
+    const useLatestCheckbox = document.getElementById('use_latest_checkbox');
+
     // --- Feedback Form Elements ---
     const feedbackForm = document.getElementById('feedbackForm');
     const ratingStarsContainer = document.getElementById('ratingStars');
@@ -22,44 +25,67 @@ document.addEventListener('DOMContentLoaded', () => {
     const feedbackErrorMessage = document.getElementById('feedbackErrorMessage'); // Error message
 
     // --- Feedback Modal Elements ---
-    // Now correctly targeting the single unified feedbackTrigger ID
-    const feedbackTrigger = document.getElementById('feedbackTrigger'); // This is the correct ID from recommendations.html
+    const feedbackTrigger = document.getElementById('feedbackTrigger');
     const feedbackModal = document.getElementById('feedbackModal');
     const closeFeedbackModal = document.getElementById('closeFeedbackModal');
 
-    // --- Diagnostic Logs for Feedback Elements ---
-    console.log('Feedback Trigger Element:', feedbackTrigger); // Updated log
-    console.log('Feedback Modal Element:', feedbackModal);
-    console.log('Close Feedback Modal Element:', closeFeedbackModal);
-
-
     // --- Event Listener for Recommendation Form ---
     recommendationForm.addEventListener('submit', async function(event) {
-        event.preventDefault(); // Prevent default form submission
+        event.preventDefault();
         console.log('Recommendation form submitted.');
 
-        // Clear previous messages and results
         recommendationsOutput.innerHTML = '';
         loadingMessage.style.display = 'none';
         errorMessage.style.display = 'none';
         noRecommendationsMessage.style.display = 'none';
 
-        const fbsLevel = fbsLevelInput.value ? parseFloat(fbsLevelInput.value) : null;
-        const rbsLevel = rbsLevelInput.value ? parseFloat(rbsLevelInput.value) : null;
+        let fbsLevel = null;
+        let rbsLevel = null;
+
+        // ✅ If checkbox is checked, fetch latest readings
+        if (useLatestCheckbox && useLatestCheckbox.checked) {
+            try {
+                const userId = localStorage.getItem('user_id');
+                if (!userId) throw new Error("User not logged in.");
+
+                
+                // For local testing:
+                //const API_BASE_URL = "http://127.0.0.1:8000";
+                // For live deployment:
+                const API_BASE_URL = "https://nutriapp-backend-mnnq.onrender.com";
+                const apiUrl = `${API_BASE_URL}/api/readings?user_id=${userId}&limit=1`;
+
+                console.log("Fetching latest reading from:", apiUrl);
+                const res = await fetch(apiUrl);
+                const readings = await res.json();
+
+                if (res.ok && readings.length > 0) {
+                    // Find the latest fasting and random readings separately
+                    const latestFasting = readings.find(r => r.meal_context === "fasting");
+                    const latestRandom = readings.find(r => r.meal_context !== "fasting");
+
+                    fbsLevel = latestFasting ? parseFloat(latestFasting.value) : null;
+                    rbsLevel = latestRandom ? parseFloat(latestRandom.value) : null;
+
+                    console.log("Latest fasting:", latestFasting);
+                    console.log("Latest random:", latestRandom);
+
+                } else {
+                    throw new Error("No readings found for this user.");
+                }
+            } catch (err) {
+                errorMessage.textContent = `Error fetching latest readings: ${err.message}`;
+                errorMessage.style.display = 'block';
+                return;
+            }
+        } else {
+            // ✅ Else, use manual input
+            fbsLevel = fbsLevelInput.value ? parseFloat(fbsLevelInput.value) : null;
+            rbsLevel = rbsLevelInput.value ? parseFloat(rbsLevelInput.value) : null;
+        }
+
         const mealType = mealTypeSelect.value;
         const numAlternativesPerSlot = parseInt(numAlternativesInput.value);
-
-        // Construct query parameters
-        const queryParams = [];
-        if (fbsLevel !== null) {
-            queryParams.push(`fbs_level=${fbsLevel}`);
-        }
-        if (rbsLevel !== null) {
-            queryParams.push(`rbs_level=${rbsLevel}`);
-        }
-        queryParams.push(`meal_type=${mealType}`);
-        queryParams.push(`num_alternatives_per_slot=${numAlternativesPerSlot}`);
-
 
         if (fbsLevel === null && rbsLevel === null) {
             errorMessage.textContent = "Please enter at least one blood sugar level (FBS or RBS).";
@@ -67,20 +93,24 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        loadingMessage.style.display = 'block'; // Show loading message
+        loadingMessage.style.display = 'block';
 
         try {
-            // API_BASE_URL: Change between local testing and live deployment
+            
             // For local testing:
             //const API_BASE_URL = "http://127.0.0.1:8000";
             // For live deployment:
             const API_BASE_URL = "https://nutriapp-backend-mnnq.onrender.com";
+            const queryParams = [];
+            if (fbsLevel !== null) queryParams.push(`fbs_level=${fbsLevel}`);
+            if (rbsLevel !== null) queryParams.push(`rbs_level=${rbsLevel}`);
+            queryParams.push(`meal_type=${mealType}`);
+            queryParams.push(`num_alternatives_per_slot=${numAlternativesPerSlot}`);
 
             const apiUrl = `${API_BASE_URL}/recommend_meal?${queryParams.join('&')}`;
             console.log('Fetching recommendations from:', apiUrl);
 
             const response = await fetch(apiUrl);
-
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
@@ -89,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             console.log('Recommendations received:', data);
 
-            loadingMessage.style.display = 'none'; // Hide loading message
+            loadingMessage.style.display = 'none';
 
             if (data && data.length > 0) {
                 const ul = document.createElement('ul');
@@ -102,10 +132,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 noRecommendationsMessage.style.display = 'block';
             }
-
         } catch (error) {
             loadingMessage.style.display = 'none';
-            errorMessage.textContent = `Error: ${error.message}. Please try again or check server logs.`;
+            errorMessage.textContent = `Error: ${error.message}`;
             errorMessage.style.display = 'block';
             console.error('Fetch error:', error);
         }
@@ -178,11 +207,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                // API_BASE_URL: Change between local testing and live deployment
-                // For local testing:
-                const API_BASE_URL = "http://127.0.0.1:8000";
+                
+                //For local testing:
+                //const API_BASE_URL = "http://127.0.0.1:8000";
                 // For live deployment:
-                //const API_BASE_URL = "https://nutriapp-backend-mnnq.onrender.com";
+                const API_BASE_URL = "https://nutriapp-backend-mnnq.onrender.com";
 
                 const apiUrl = `${API_BASE_URL}/submit_feedback`;
                 console.log('Submitting feedback to:', apiUrl);

@@ -236,6 +236,26 @@
             color: var(--text-muted);
         }
 
+        .forgot-password {
+            text-align: right;
+            margin-top: -1rem;
+            margin-bottom: 1rem;
+        }
+
+        .forgot-password a {
+            color: var(--primary-color);
+            font-size: 0.85rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .forgot-password a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+
         /* Login Button */
         .login-button {
             background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
@@ -485,10 +505,10 @@
 
             <form id="loginForm" class="login-form">
                 <div class="input-group">
-                    <label for="username">Username</label>
+                    <label for="identifier">Email or Username</label>
                     <div class="input-wrapper">
                         <i class="fas fa-user"></i>
-                        <input type="text" id="username" name="username" class="form-input" placeholder="Enter your username" required>
+                        <input type="text" id="identifier" name="identifier" class="form-input" placeholder="Enter your email or username" required>
                     </div>
                 </div>
 
@@ -499,6 +519,11 @@
                         <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required>
                     </div>
                 </div>
+
+                <div class="forgot-password">
+                    <a href="requestpassreset.html">Forgot Password?</a>
+                </div>
+
 
                 <button type="submit" class="login-button">
                     <i class="fas fa-spinner spinner"></i>
@@ -520,7 +545,7 @@
 
     <script>
         // API endpoint for your local FastAPI backend
-        //const API_URL = 'http://127.0.0.1:8000';
+        //const API_BASE_URL = 'http://127.0.0.1:8000';
         const API_BASE_URL = "https://nutriapp-backend-mnnq.onrender.com";
 
 
@@ -528,11 +553,11 @@
             const loginForm = document.getElementById('loginForm');
             const loginButton = loginForm.querySelector('.login-button');
             const messageDiv = document.getElementById('message');
-            const usernameInput = document.getElementById('username');
+            const identifierInput = document.getElementById('identifier');
             const passwordInput = document.getElementById('password');
 
             // Add input focus effects
-            [usernameInput, passwordInput].forEach(input => {
+            [identifierInput, passwordInput].forEach(input => {
                 input.addEventListener('focus', () => {
                     input.parentElement.style.transform = 'translateY(-2px)';
                 });
@@ -548,12 +573,13 @@
                 // Clear any previous messages
                 hideMessage();
 
-                const username = usernameInput.value.trim();
+                //Submit Handler
+                const identifier = identifierInput.value.trim();
                 const password = passwordInput.value;
 
                 // Simple validation
-                if (!username || !password) {
-                    showMessage('Please enter both username and password.', 'error');
+                if (!identifier || !password) {
+                    showMessage('Please enter your email/username and password.', 'error');
                     return;
                 }
 
@@ -566,7 +592,7 @@
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ username, password }),
+                        body: JSON.stringify({ identifier, password }), //API Call
                     });
 
                     const data = await response.json();
@@ -575,15 +601,29 @@
                         showMessage(data.message || 'Login successful!', 'success');
                         console.log('User logged in successfully! User ID:', data.user_id);
 
+                        // Store the full user data for dashboard
+                        localStorage.setItem("userData", JSON.stringify(data));
+
                         // Store the user ID in localStorage
                         if (data.user_id) {
                             localStorage.setItem('user_id', data.user_id);
+                        }
+
+                        // Store the username
+                        if (data.username) {
+                            localStorage.setItem('username', data.username);
+                        }
+
+                        //Store email
+                        if (data.email) {
+                            localStorage.setItem('email', data.email);
                         }
 
                         // Redirect with a small delay to show success message
                         setTimeout(() => {
                             window.location.href = 'dashboard.html';
                         }, 1500);
+
 
                     } else {
                         showMessage(data.detail || 'Login failed. Please try again.', 'error');
