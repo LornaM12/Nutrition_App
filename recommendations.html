@@ -679,13 +679,27 @@
                                 <small>Enter new readings</small>
                             </label>
                         </div>
-                        <div class="mode-option">
-                            <input type="radio" id="latest_mode" name="input_mode" value="latest">
-                            <label for="latest_mode">
-                                <i class="fas fa-history"></i>
-                                <div>Use Latest Readings</div>
-                                <small>From your dashboard</small>
-                            </label>
+                        <div class="input-method-selection">
+                            
+                            
+                            <div class="mode-option">
+                                <input type="radio" id="manual_mode" name="input_mode" value="manual" checked>
+                                
+                            </div>
+                            
+                            <div class="mode-option">
+                                <input type="radio" id="latest_mode" name="input_mode" value="latest">
+                                <label for="latest_mode">
+                                    <i class="fas fa-history"></i>
+                                    <div>Use Latest Readings</div>
+                                    <small>From your dashboard</small>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Manual input fields (show/hide based on selection) -->
+                        <div id="manual_inputs">
+                            <!-- Your FBS and RBS input fields here -->
                         </div>
                     </div>
                     

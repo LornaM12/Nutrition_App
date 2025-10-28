@@ -12,17 +12,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorMessage = document.getElementById('errorMessage');
     const noRecommendationsMessage = document.getElementById('noRecommendationsMessage');
 
-    // ✅ New: Checkbox to use latest readings from dashboard
-    const useLatestCheckbox = document.getElementById('use_latest_checkbox');
+    // ✅ Input mode radio buttons
+    const manualModeRadio = document.getElementById('manual_mode');
+    const latestModeRadio = document.getElementById('latest_mode');
+    const manualInputsDiv = document.getElementById('manual_inputs');
+
+    // Toggle visibility of manual inputs based on selected mode
+    if (manualModeRadio && latestModeRadio && manualInputsDiv) {
+        const toggleManualInputs = () => {
+            if (latestModeRadio.checked) {
+                manualInputsDiv.style.display = 'none';
+            } else {
+                manualInputsDiv.style.display = 'block';
+            }
+        };
+
+        manualModeRadio.addEventListener('change', toggleManualInputs);
+        latestModeRadio.addEventListener('change', toggleManualInputs);
+    }
 
     // --- Feedback Form Elements ---
     const feedbackForm = document.getElementById('feedbackForm');
     const ratingStarsContainer = document.getElementById('ratingStars');
-    const ratingInput = document.getElementById('rating'); // Hidden input for rating
+    const ratingInput = document.getElementById('rating');
     const feedbackTextInput = document.getElementById('feedback_text');
     const contactEmailInput = document.getElementById('contact_email');
-    const feedbackMessage = document.getElementById('feedbackMessage'); // Success message
-    const feedbackErrorMessage = document.getElementById('feedbackErrorMessage'); // Error message
+    const feedbackMessage = document.getElementById('feedbackMessage');
+    const feedbackErrorMessage = document.getElementById('feedbackErrorMessage');
 
     // --- Feedback Modal Elements ---
     const feedbackTrigger = document.getElementById('feedbackTrigger');
@@ -42,33 +58,56 @@ document.addEventListener('DOMContentLoaded', () => {
         let fbsLevel = null;
         let rbsLevel = null;
 
-        // ✅ If checkbox is checked, fetch latest readings
-        if (useLatestCheckbox && useLatestCheckbox.checked) {
+        // ✅ Check which input mode is selected
+        const useLatestReadings = latestModeRadio && latestModeRadio.checked;
+
+        if (useLatestReadings) {
             try {
                 const userId = localStorage.getItem('user_id');
                 if (!userId) throw new Error("User not logged in.");
 
-                
                 // For local testing:
                 //const API_BASE_URL = "http://127.0.0.1:8000";
                 // For live deployment:
                 const API_BASE_URL = "https://nutriapp-backend-mnnq.onrender.com";
-                const apiUrl = `${API_BASE_URL}/api/readings?user_id=${userId}&limit=1`;
+                
+                const apiUrl = `${API_BASE_URL}/api/sugar-readings?user_id=${userId}&limit=50`;
 
-                console.log("Fetching latest reading from:", apiUrl);
+                console.log("Fetching latest readings from:", apiUrl);
                 const res = await fetch(apiUrl);
+                
+                if (!res.ok) {
+                    throw new Error(`Failed to fetch readings: ${res.status}`);
+                }
+                
                 const readings = await res.json();
+                console.log("All readings received:", readings);
 
-                if (res.ok && readings.length > 0) {
-                    // Find the latest fasting and random readings separately
-                    const latestFasting = readings.find(r => r.meal_context === "fasting");
-                    const latestRandom = readings.find(r => r.meal_context !== "fasting");
+                if (readings.length > 0) {
+                    // Find the latest fasting reading (meal_context should be "Fasting")
+                    const fastingReadings = readings.filter(r => 
+                        r.meal_context && r.meal_context.toLowerCase() === "fasting"
+                    );
+                    
+                    // Find the latest random reading (non-fasting)
+                    const randomReadings = readings.filter(r => 
+                        r.meal_context && r.meal_context.toLowerCase() === "random"
+                    );
+
+                    const latestFasting = fastingReadings.length > 0 ? fastingReadings[0] : null;
+                    const latestRandom = randomReadings.length > 0 ? randomReadings[0] : null;
 
                     fbsLevel = latestFasting ? parseFloat(latestFasting.value) : null;
                     rbsLevel = latestRandom ? parseFloat(latestRandom.value) : null;
 
-                    console.log("Latest fasting:", latestFasting);
-                    console.log("Latest random:", latestRandom);
+                    console.log("Latest fasting reading:", latestFasting);
+                    console.log("Latest random reading:", latestRandom);
+                    console.log("FBS Level:", fbsLevel);
+                    console.log("RBS Level:", rbsLevel);
+
+                    if (fbsLevel === null && rbsLevel === null) {
+                        throw new Error("No fasting or random readings found in your dashboard.");
+                    }
 
                 } else {
                     throw new Error("No readings found for this user.");
@@ -76,10 +115,11 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (err) {
                 errorMessage.textContent = `Error fetching latest readings: ${err.message}`;
                 errorMessage.style.display = 'block';
+                console.error("Error:", err);
                 return;
             }
         } else {
-            // ✅ Else, use manual input
+            // ✅ Use manual input
             fbsLevel = fbsLevelInput.value ? parseFloat(fbsLevelInput.value) : null;
             rbsLevel = rbsLevelInput.value ? parseFloat(rbsLevelInput.value) : null;
         }
@@ -96,11 +136,11 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingMessage.style.display = 'block';
 
         try {
-            
             // For local testing:
             //const API_BASE_URL = "http://127.0.0.1:8000";
             // For live deployment:
             const API_BASE_URL = "https://nutriapp-backend-mnnq.onrender.com";
+            
             const queryParams = [];
             if (fbsLevel !== null) queryParams.push(`fbs_level=${fbsLevel}`);
             if (rbsLevel !== null) queryParams.push(`rbs_level=${rbsLevel}`);
@@ -190,7 +230,6 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
             console.log('Feedback form submitted.');
 
-            // Clear previous messages
             feedbackMessage.style.display = 'none';
             feedbackErrorMessage.style.display = 'none';
             feedbackMessage.textContent = '';
@@ -207,8 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                
-                //For local testing:
+                // For local testing:
                 //const API_BASE_URL = "http://127.0.0.1:8000";
                 // For live deployment:
                 const API_BASE_URL = "https://nutriapp-backend-mnnq.onrender.com";
@@ -238,10 +276,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 feedbackMessage.style.display = 'block';
                 console.log('Feedback submission successful:', result.message);
 
-                // Clear the form on successful submission
                 currentRating = 0;
                 ratingInput.value = 0;
-                fillStars(0); // Clear star visuals
+                fillStars(0);
                 feedbackTextInput.value = '';
                 contactEmailInput.value = '';
 
@@ -257,27 +294,23 @@ document.addEventListener('DOMContentLoaded', () => {
     if (feedbackModal && closeFeedbackModal) {
         console.log('Feedback modal elements found. Attaching listeners.');
 
-        // Function to show the modal
         const showFeedbackModal = () => {
             console.log('Showing feedback modal!');
             feedbackModal.classList.add('show-modal');
         };
 
-        // Attach listener to the unified feedback trigger
-        if (feedbackTrigger) { // Use the single feedbackTrigger element
+        if (feedbackTrigger) {
             feedbackTrigger.addEventListener('click', showFeedbackModal);
             console.log('Attached click listener to unified feedback trigger.');
         } else {
             console.warn('Unified feedback trigger element not found.');
         }
 
-        // Hide modal when close button is clicked
         closeFeedbackModal.addEventListener('click', () => {
             console.log('Close modal button clicked.');
             feedbackModal.classList.remove('show-modal');
         });
 
-        // Hide modal when clicking outside of the modal content
         window.addEventListener('click', (event) => {
             if (event.target == feedbackModal) {
                 console.log('Clicked outside modal. Hiding modal.');
@@ -285,8 +318,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     } else {
-        console.warn('One or more feedback modal elements not found (modal or close button):', { feedbackModal, closeFeedbackModal });
+        console.warn('One or more feedback modal elements not found:', { feedbackModal, closeFeedbackModal });
     }
-
-    
 });
