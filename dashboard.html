@@ -44,6 +44,8 @@
             color: var(--text-primary);
             line-height: 1.6;
         }
+        
+        
 
         /* Header Styles */
         .main-header {
@@ -132,11 +134,12 @@
         .welcome-card {
             background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             color: white;
-            padding: 2rem;
+            padding: 1.5rem;
             border-radius: var(--border-radius-lg);
             position: relative;
             overflow: hidden;
             box-shadow: var(--shadow-lg);
+            min-height: 180px;
         }
 
         .welcome-card::before {
@@ -159,14 +162,14 @@
         }
 
         .welcome-title {
-            font-size: 2rem;
+            font-size: 1.6rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
         }
 
         .welcome-subtitle {
             opacity: 0.9;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         .quick-stats {
@@ -642,6 +645,9 @@
                 gap: 1rem;
             }
         }
+        
+</style>
+
     </style>
 </head>
 <body>
@@ -670,10 +676,6 @@
                     <h1 class="welcome-title">Good morning, user!</h1>
                     <p class="welcome-subtitle">Here's your health summary for today!</p>
 
-                    <a href="recommendations.html" class="btn btn-primary" style="margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none;">
-                        <i class="fas fa-utensils"></i>
-                        Get Meal Recommendations
-                    </a>
 
                     <div class="quick-stats">
                         <div class="stat-item">
@@ -695,6 +697,38 @@
                     </div>
                 </div>
             </div>
+
+            <!--Quick Actions-->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Quick Actions</h3>
+                </div>
+                <div class="quick-actions">
+                    <button class="action-btn" onclick="openModal('sugar')" id="sugarBtn">
+                        <i class="fas fa-tint action-icon" style="color: var(--error-color);"></i>
+                        Log Sugar Reading
+                    </button>
+                    <button class="action-btn" onclick="openModal('water')" id="waterBtn">
+                        <i class="fas fa-glass-water action-icon" style="color: var(--info-color);"></i>
+                        Log Water Intake
+                    </button>
+                    <button class="action-btn" onclick="openModal('exercise')" id="exerciseBtn">
+                        <i class="fas fa-dumbbell action-icon" style="color: var(--success-color);"></i>
+                        Log Exercise
+                    </button>
+                </div>
+            </div>
+
+            <!--Get recommendations button-->
+            <div style="text-align: center; margin: 1.5rem 0;">
+                <a href="recommendations.html" class="btn btn-primary" 
+                style="display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none;">
+                    <i class="fas fa-utensils"></i>
+                    Get Meal Recommendations
+                </a>
+            </div>
+
+
 
             <!-- Main Dashboard Grid -->
             <div class="dashboard-grid">
@@ -1007,9 +1041,9 @@
           alert("Please log in first.");
           window.location.href = "login.html"; // redirect if not logged in
         }
-        // Configuration for your API endpoint
+        // Configuration for API endpoint
         const API_CONFIG = {
-            //baseUrl: 'http://localhost:8000', // Update this to match your Flask API URL
+            //baseUrl: 'http://localhost:8000', // 
             baseUrl: 'https://nutriapp-backend-mnnq.onrender.com',
             endpoints: {
                 sugarReadings: '/api/sugar-readings',
