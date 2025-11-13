@@ -199,9 +199,31 @@
         }
 
         /* Cards Grid */
+        /* Cards Grid */
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Blood Sugar Trend and Weekly Overview side by side */
+        .chart-card-full {
+            grid-column: span 1;
+        }
+
+        /* Current Status and Today's Goals side by side */
+        .status-goals-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Quick Tips and Recent Readings side by side */
+        .tips-readings-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
@@ -607,42 +629,381 @@
         }
 
         /* Responsive Design */
-        @media (min-width: 768px) {
-            .dashboard-grid {
-                grid-template-columns: 2fr 1fr;
-            }
+        /* Enhanced Mobile Responsive Styles - Add these to your existing CSS */
 
-            .cards-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .cards-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
+        /* Tablet and Mobile Devices */
         @media (max-width: 768px) {
             .container {
-                padding: 0 1rem;
+                padding: 0 0.75rem;
+            }
+
+            .header-content {
+                padding: 0.75rem 0;
+            }
+
+            .logo {
+                font-size: 1.5rem;
+            }
+
+            .user-info {
+                gap: 0.5rem;
+            }
+
+            .user-greeting,
+            .user-name {
+                font-size: 0.85rem;
+            }
+
+            .user-avatar {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
             }
 
             .dashboard-main {
                 padding: 1rem 0;
             }
 
+            .welcome-card {
+                padding: 1.25rem;
+                min-height: auto;
+            }
+
             .welcome-title {
-                font-size: 1.5rem;
+                font-size: 1.4rem;
+            }
+
+            .welcome-subtitle {
+                font-size: 0.95rem;
             }
 
             .quick-stats {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+                margin-top: 1rem;
+            }
+
+            .stat-item {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .stat-value {
+                font-size: 1.3rem;
+            }
+
+            .stat-label {
+                font-size: 0.75rem;
+            }
+
+            .card {
+                padding: 1.25rem;
+                margin-bottom: 1rem;
+            }
+
+            .card-title {
+                font-size: 1rem;
+            }
+
+            .card-icon {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+
+            .action-btn {
+                padding: 0.85rem;
+                font-size: 0.95rem;
+            }
+
+            .action-icon {
+                font-size: 1.1rem;
             }
 
             .cards-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr !important;
                 gap: 1rem;
+            }
+
+            .card[style*="grid-column: span 3"] {
+                grid-column: span 1 !important;
+            }
+
+            .chart-container {
+                height: 200px;
+            }
+
+            .sugar-reading {
+                font-size: 2.5rem;
+            }
+
+            .sugar-unit {
+                font-size: 0.9rem;
+            }
+
+            .status-indicator {
+                font-size: 0.85rem;
+                padding: 0.4rem 0.85rem;
+            }
+
+            .progress-item {
+                margin-bottom: 1.25rem;
+            }
+
+            .progress-label,
+            .progress-value {
+                font-size: 0.9rem;
+            }
+
+            .recommendation-item {
+                padding: 0.85rem;
+                gap: 0.75rem;
+            }
+
+            .rec-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 0.85rem;
+            }
+
+            .rec-content h4 {
+                font-size: 0.95rem;
+            }
+
+            .rec-content p {
+                font-size: 0.85rem;
+            }
+
+            .reading-item {
+                padding: 0.65rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.25rem;
+            }
+
+            .reading-time,
+            .reading-value {
+                font-size: 0.85rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .left-column,
+            .right-column {
+                width: 100%;
+            }
+
+            /* Modal Adjustments */
+            .modal-content {
+                width: 95%;
+                padding: 1.5rem;
+                max-width: 100%;
+            }
+
+            .modal-title {
+                font-size: 1.1rem;
+            }
+
+            .form-input,
+            .form-select {
+                padding: 0.65rem;
+                font-size: 0.95rem;
+            }
+
+            .btn {
+                padding: 0.65rem 1.25rem;
+                font-size: 0.95rem;
+            }
+
+            .modal-actions {
+                flex-direction: column-reverse;
+                gap: 0.75rem;
+            }
+
+            .modal-actions .btn {
+                width: 100%;
+            }
+        }
+
+        /* Small Mobile Devices */
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 0.5rem;
+            }
+
+            .logo {
+                font-size: 1.3rem;
+            }
+
+            .user-info > div {
+                display: none;
+            }
+
+            .user-avatar {
+                width: 32px;
+                height: 32px;
+                font-size: 0.85rem;
+            }
+
+            .welcome-card {
+                padding: 1rem;
+            }
+
+            .welcome-title {
+                font-size: 1.2rem;
+            }
+
+            .welcome-subtitle {
+                font-size: 0.9rem;
+            }
+
+            .quick-stats {
+                gap: 0.5rem;
+            }
+
+            .stat-item {
+                padding: 0.6rem 0.4rem;
+            }
+
+            .stat-value {
+                font-size: 1.1rem;
+            }
+
+            .stat-label {
+                font-size: 0.7rem;
+            }
+
+            .card {
+                padding: 1rem;
+            }
+
+            .card-title {
+                font-size: 0.95rem;
+            }
+
+            .card-header {
+                margin-bottom: 1rem;
+            }
+
+            .action-btn {
+                padding: 0.75rem;
+                font-size: 0.9rem;
+                gap: 0.5rem;
+            }
+
+            .chart-container {
+                height: 180px;
+            }
+
+            .sugar-reading {
+                font-size: 2rem;
+            }
+
+            .progress-label,
+            .progress-value {
+                font-size: 0.85rem;
+            }
+
+            .recommendation-item {
+                padding: 0.75rem;
+            }
+
+            .rec-content h4 {
+                font-size: 0.9rem;
+            }
+
+            .rec-content p {
+                font-size: 0.8rem;
+            }
+
+            .modal-content {
+                padding: 1.25rem;
+            }
+
+            .input-group {
+                margin-bottom: 0.85rem;
+            }
+
+            .input-group label {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Landscape Mode on Mobile */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .welcome-card {
+                min-height: auto;
+            }
+
+            .quick-stats {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .chart-container {
+                height: 160px;
+            }
+        }
+
+        /* Fix for very wide content that causes horizontal scroll */
+        @media (max-width: 768px) {
+            * {
+                max-width: 100%;
+            }
+
+            .card,
+            .welcome-card,
+            .action-btn,
+            .recommendation-item,
+            .reading-item {
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            /* Prevent canvas overflow */
+            canvas {
+                max-width: 100% !important;
+                height: auto !important;
+            }
+
+            /* Ensure grid doesn't overflow */
+            .quick-actions,
+            .cards-grid,
+            .quick-stats,
+            .dashboard-grid {
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            /* Fix any fixed widths */
+            .modal-overlay {
+                padding: 1rem;
+            }
+        }
+        @media (min-width: 1024px) {
+            .cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-card-full {
+                grid-column: span 1;
+            }
+            
+            .status-goals-grid,
+            .tips-readings-grid {
+                grid-template-columns: 1fr;
             }
         }
         
@@ -732,12 +1093,13 @@
 
             <!-- Main Dashboard Grid -->
             <div class="dashboard-grid">
-                <!-- Left Column -->
-                <div class="left-column">
-                    <!-- Charts Section -->
+                <!-- Left Column - Full Width -->
+                <div class="left-column" style="grid-column: span 2;">
+                    
+                    <!-- Blood Sugar Trend and Weekly Overview (Side by Side) -->
                     <div class="cards-grid">
-                        <!-- Sugar Trend Chart -->
-                        <div class="card" style="grid-column: span 3;">
+                        <!-- Blood Sugar Trend Chart -->
+                        <div class="card chart-card-full">
                             <div class="card-header">
                                 <h3 class="card-title">Blood Sugar Trend (Last 7 Days)</h3>
                                 <div class="card-icon" style="background: var(--info-color); color: white;">
@@ -749,12 +1111,27 @@
                             </div>
                         </div>
 
+                        <!-- Weekly Overview -->
+                        <div class="card chart-card-full">
+                            <div class="card-header">
+                                <h3 class="card-title">Weekly Overview</h3>
+                                <div class="card-icon" style="background: var(--secondary-color); color: white;">
+                                    <i class="fas fa-calendar-week"></i>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="weeklyChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Status and Today's Goals (Side by Side) -->
+                    <div class="status-goals-grid">
                         <!-- Current Status -->
                         <div class="card">
                             <div class="card-header">
                                 <h3 class="card-title">Current Status</h3>
                                 <div class="card-icon" style="background: var(--success-color); color: white;">
-                                    <!--<i class="fas fa-heartbeat"></i>-->
                                 </div>
                             </div>
                             <div class="sugar-status">
@@ -768,7 +1145,7 @@
                             </div>
                         </div>
 
-                        <!-- Health Goals -->
+                        <!-- Today's Goals -->
                         <div class="card">
                             <div class="card-header">
                                 <h3 class="card-title">Today's Goals</h3>
@@ -804,78 +1181,63 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Weekly Overview -->
+                    <!-- Quick Tips and Recent Readings (Side by Side) -->
+                    <div class="tips-readings-grid">
+                        <!-- Quick Tips for You -->
                         <div class="card">
                             <div class="card-header">
-                                <h3 class="card-title">Weekly Overview</h3>
-                                <div class="card-icon" style="background: var(--secondary-color); color: white;">
-                                    <i class="fas fa-calendar-week"></i>
+                                <h3 class="card-title">Quick Tips for You</h3>
+                                <div class="card-icon" style="background: var(--primary-color); color: white;">
+                                    <i class="fas fa-lightbulb"></i>
                                 </div>
                             </div>
-                            <div class="chart-container">
-                                <canvas id="weeklyChart"></canvas>
+                            <div class="recommendations-list">
+                                <div class="recommendation-item">
+                                    <div class="rec-icon">
+                                        <i class="fas fa-apple-alt"></i>
+                                    </div>
+                                    <div class="rec-content">
+                                        <h4>Breakfast Tip</h4>
+                                        <p>Low glycemic index meals help stabilize morning levels.</p>
+                                    </div>
+                                </div>
+                                <div class="recommendation-item">
+                                    <div class="rec-icon">
+                                        <i class="fas fa-walking"></i>
+                                    </div>
+                                    <div class="rec-content">
+                                        <h4>Activity Reminder</h4>
+                                        <p>A 10-minute walk after lunch can help reduce post-meal glucose spikes.</p>
+                                    </div>
+                                </div>
+                                <div class="recommendation-item">
+                                    <div class="rec-icon">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div class="rec-content">
+                                        <h4>Timing Tip</h4>
+                                        <p>Your readings are typically higher in the evening. Consider an earlier dinner.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Readings -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Recent Readings</h3>
+                                <div class="card-icon" style="background: var(--accent-color); color: white;">
+                                    <i class="fas fa-history"></i>
+                                </div>
+                            </div>
+                            <div class="readings-list" id="recentReadingsList">
+                                <!-- Readings will be loaded dynamically -->
                             </div>
                         </div>
                     </div>
-
-                    <!-- Quick Actions -->
                     
-                </div>
-
-                <!-- Right Column -->
-                <div class="right-column">
-                    <!-- Quick Tips for You -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Quick Tips for You</h3>
-                            <div class="card-icon" style="background: var(--primary-color); color: white;">
-                                <i class="fas fa-lightbulb"></i>
-                            </div>
-                        </div>
-                        <div class="recommendations-list">
-                            <div class="recommendation-item">
-                                <div class="rec-icon">
-                                    <i class="fas fa-apple-alt"></i>
-                                </div>
-                                <div class="rec-content">
-                                    <h4>Breakfast Tip</h4>
-                                    <p>Low glycemic index meals help stabilize morning levels.</p>
-                                </div>
-                            </div>
-                            <div class="recommendation-item">
-                                <div class="rec-icon">
-                                    <i class="fas fa-walking"></i>
-                                </div>
-                                <div class="rec-content">
-                                    <h4>Activity Reminder</h4>
-                                    <p>A 10-minute walk after lunch can help reduce post-meal glucose spikes.</p>
-                                </div>
-                            </div>
-                            <div class="recommendation-item">
-                                <div class="rec-icon">
-                                    <i class="fas fa-clock"></i>
-                                </div>
-                                <div class="rec-content">
-                                    <h4>Timing Tip</h4>
-                                    <p>Your readings are typically higher in the evening. Consider an earlier dinner.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Recent Readings -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Recent Readings</h3>
-                            <div class="card-icon" style="background: var(--accent-color); color: white;">
-                                <i class="fas fa-history"></i>
-                            </div>
-                        </div>
-                        <div class="readings-list" id="recentReadingsList">
-                            <!-- Readings will be loaded dynamically -->
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
