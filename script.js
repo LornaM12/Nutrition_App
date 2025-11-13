@@ -1,6 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM Content Loaded - script.js is running.');
 
+    // --- API Configuration ---
+    // For local testing:
+    const API_BASE_URL = "http://127.0.0.1:8000";
+    // For live deployment:
+    // const API_BASE_URL = "https://nutriapp-backend-mnnq.onrender.com";
+
     // --- Recommendation Form Elements ---
     const fbsLevelInput = document.getElementById('fbs_level');
     const rbsLevelInput = document.getElementById('rbs_level');
@@ -12,24 +18,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorMessage = document.getElementById('errorMessage');
     const noRecommendationsMessage = document.getElementById('noRecommendationsMessage');
 
-    // ✅ Input mode radio buttons
+    // --- Input mode radio buttons ---
     const manualModeRadio = document.getElementById('manual_mode');
     const latestModeRadio = document.getElementById('latest_mode');
-    const manualInputsDiv = document.getElementById('manual_inputs');
+    const manualInputsDiv = document.getElementById('manualInputs');
 
-    // Toggle visibility of manual inputs based on selected mode
-    if (manualModeRadio && latestModeRadio && manualInputsDiv) {
-        const toggleManualInputs = () => {
-            if (latestModeRadio.checked) {
-                manualInputsDiv.style.display = 'none';
-            } else {
-                manualInputsDiv.style.display = 'block';
-            }
-        };
+    // --- Latest Readings Selection Elements ---
+    const latestReadingsSection = document.getElementById('latestReadingsSection');
+    const loadingReadings = document.getElementById('loadingReadings');
+    const noReadingsMessage = document.getElementById('noReadingsMessage');
+    const readingsList = document.getElementById('readingsList');
 
-        manualModeRadio.addEventListener('change', toggleManualInputs);
-        latestModeRadio.addEventListener('change', toggleManualInputs);
-    }
+    // --- Latest Readings State ---
+    let selectedReading = null;
+    let allReadings = [];
 
     // --- Feedback Form Elements ---
     const feedbackForm = document.getElementById('feedbackForm');
@@ -45,140 +47,249 @@ document.addEventListener('DOMContentLoaded', () => {
     const feedbackModal = document.getElementById('feedbackModal');
     const closeFeedbackModal = document.getElementById('closeFeedbackModal');
 
-    // --- Event Listener for Recommendation Form ---
-    recommendationForm.addEventListener('submit', async function(event) {
-        event.preventDefault();
-        console.log('Recommendation form submitted.');
+    // --- Helper Functions ---
+    
+    /**
+     * Format timestamp to readable date
+     */
+    function formatTimestamp(timestamp) {
+        const date = new Date(timestamp);
+        const options = { 
+            month: 'short', 
+            day: 'numeric', 
+            year: 'numeric',
+            hour: '2-digit', 
+            minute: '2-digit'
+        };
+        return date.toLocaleDateString('en-US', options);
+    }
 
-        recommendationsOutput.innerHTML = '';
-        loadingMessage.style.display = 'none';
-        errorMessage.style.display = 'none';
-        noRecommendationsMessage.style.display = 'none';
-
-        let fbsLevel = null;
-        let rbsLevel = null;
-
-        // ✅ Check which input mode is selected
-        const useLatestReadings = latestModeRadio && latestModeRadio.checked;
-
-        if (useLatestReadings) {
-            try {
-                const userId = localStorage.getItem('user_id');
-                if (!userId) throw new Error("User not logged in.");
-
-                // For local testing:
-                //const API_BASE_URL = "http://127.0.0.1:8000";
-                // For live deployment:
-                const API_BASE_URL = "https://nutriapp-backend-mnnq.onrender.com";
-                
-                const apiUrl = `${API_BASE_URL}/api/sugar-readings?user_id=${userId}&limit=50`;
-
-                console.log("Fetching latest readings from:", apiUrl);
-                const res = await fetch(apiUrl);
-                
-                if (!res.ok) {
-                    throw new Error(`Failed to fetch readings: ${res.status}`);
-                }
-                
-                const readings = await res.json();
-                console.log("All readings received:", readings);
-
-                if (readings.length > 0) {
-                    // Find the latest fasting reading (meal_context should be "Fasting")
-                    const fastingReadings = readings.filter(r => 
-                        r.meal_context && r.meal_context.toLowerCase() === "fasting"
-                    );
-                    
-                    // Find the latest random reading (non-fasting)
-                    const randomReadings = readings.filter(r => 
-                        r.meal_context && r.meal_context.toLowerCase() === "random"
-                    );
-
-                    const latestFasting = fastingReadings.length > 0 ? fastingReadings[0] : null;
-                    const latestRandom = randomReadings.length > 0 ? randomReadings[0] : null;
-
-                    fbsLevel = latestFasting ? parseFloat(latestFasting.value) : null;
-                    rbsLevel = latestRandom ? parseFloat(latestRandom.value) : null;
-
-                    console.log("Latest fasting reading:", latestFasting);
-                    console.log("Latest random reading:", latestRandom);
-                    console.log("FBS Level:", fbsLevel);
-                    console.log("RBS Level:", rbsLevel);
-
-                    if (fbsLevel === null && rbsLevel === null) {
-                        throw new Error("No fasting or random readings found in your dashboard.");
-                    }
-
-                } else {
-                    throw new Error("No readings found for this user.");
-                }
-            } catch (err) {
-                errorMessage.textContent = `Error fetching latest readings: ${err.message}`;
-                errorMessage.style.display = 'block';
-                console.error("Error:", err);
-                return;
-            }
-        } else {
-            // ✅ Use manual input
-            fbsLevel = fbsLevelInput.value ? parseFloat(fbsLevelInput.value) : null;
-            rbsLevel = rbsLevelInput.value ? parseFloat(rbsLevelInput.value) : null;
-        }
-
-        const mealType = mealTypeSelect.value;
-        const numAlternativesPerSlot = parseInt(numAlternativesInput.value);
-
-        if (fbsLevel === null && rbsLevel === null) {
-            errorMessage.textContent = "Please enter at least one blood sugar level (FBS or RBS).";
-            errorMessage.style.display = 'block';
+    /**
+     * Fetch latest readings from API
+     */
+    async function fetchLatestReadings() {
+        const userId = localStorage.getItem('user_id');
+        if (!userId) {
+            noReadingsMessage.textContent = 'Please log in to view your readings.';
+            loadingReadings.style.display = 'none';
+            noReadingsMessage.style.display = 'block';
             return;
         }
 
-        loadingMessage.style.display = 'block';
-
         try {
-            // For local testing:
-            //const API_BASE_URL = "http://127.0.0.1:8000";
-            // For live deployment:
-            const API_BASE_URL = "https://nutriapp-backend-mnnq.onrender.com";
+            const response = await fetch(`${API_BASE_URL}/api/sugar-readings?user_id=${userId}&limit=3`);
+            if (!response.ok) throw new Error('Failed to fetch readings');
             
-            const queryParams = [];
-            if (fbsLevel !== null) queryParams.push(`fbs_level=${fbsLevel}`);
-            if (rbsLevel !== null) queryParams.push(`rbs_level=${rbsLevel}`);
-            queryParams.push(`meal_type=${mealType}`);
-            queryParams.push(`num_alternatives_per_slot=${numAlternativesPerSlot}`);
-
-            const apiUrl = `${API_BASE_URL}/recommend_meal?${queryParams.join('&')}`;
-            console.log('Fetching recommendations from:', apiUrl);
-
-            const response = await fetch(apiUrl);
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+            const readings = await response.json();
+            allReadings = readings;
+            
+            loadingReadings.style.display = 'none';
+            
+            if (readings.length === 0) {
+                noReadingsMessage.style.display = 'block';
+                return;
             }
 
-            const data = await response.json();
-            console.log('Recommendations received:', data);
-
-            loadingMessage.style.display = 'none';
-
-            if (data && data.length > 0) {
-                const ul = document.createElement('ul');
-                data.forEach(item => {
-                    const li = document.createElement('li');
-                    li.textContent = item;
-                    ul.appendChild(li);
-                });
-                recommendationsOutput.appendChild(ul);
-            } else {
-                noRecommendationsMessage.style.display = 'block';
-            }
+            displayReadings(readings);
         } catch (error) {
-            loadingMessage.style.display = 'none';
-            errorMessage.textContent = `Error: ${error.message}`;
-            errorMessage.style.display = 'block';
-            console.error('Fetch error:', error);
+            console.error('Error fetching readings:', error);
+            loadingReadings.style.display = 'none';
+            noReadingsMessage.textContent = 'Error loading readings. Please try again.';
+            noReadingsMessage.style.display = 'block';
         }
-    });
+    }
+
+    /**
+     * Display readings as selectable cards
+     */
+    function displayReadings(readings) {
+        readingsList.innerHTML = '';
+        
+        readings.forEach((reading, index) => {
+            const card = document.createElement('div');
+            card.className = 'reading-card';
+            card.dataset.index = index;
+            
+            card.innerHTML = `
+                <div class="selected-indicator">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="reading-card-header">
+                    <div class="reading-value">${reading.value} mg/dL</div>
+                    <span class="reading-context">${reading.meal_context}</span>
+                </div>
+                <div class="reading-timestamp">
+                    <i class="fas fa-clock"></i> ${formatTimestamp(reading.timestamp)}
+                </div>
+            `;
+            
+            card.addEventListener('click', () => selectReading(index));
+            readingsList.appendChild(card);
+        });
+    }
+
+    /**
+     * Select a reading card
+     */
+    function selectReading(index) {
+        document.querySelectorAll('.reading-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        
+        const selectedCard = document.querySelector(`[data-index="${index}"]`);
+        selectedCard.classList.add('selected');
+        selectedReading = allReadings[index];
+        console.log('Selected reading:', selectedReading);
+    }
+
+    /**
+     * Toggle between manual and latest readings mode
+     */
+    function toggleInputMode() {
+        if (latestModeRadio && latestModeRadio.checked) {
+            // Show latest readings section
+            if (manualInputsDiv) manualInputsDiv.style.display = 'none';
+            if (latestReadingsSection) {
+                latestReadingsSection.classList.add('show');
+                loadingReadings.style.display = 'block';
+                noReadingsMessage.style.display = 'none';
+                readingsList.innerHTML = '';
+                selectedReading = null;
+                fetchLatestReadings();
+            }
+        } else {
+            // Show manual inputs
+            if (manualInputsDiv) manualInputsDiv.style.display = 'grid';
+            if (latestReadingsSection) {
+                latestReadingsSection.classList.remove('show');
+                selectedReading = null;
+            }
+        }
+    }
+
+    // Attach input mode toggle listeners
+    if (manualModeRadio && latestModeRadio) {
+        manualModeRadio.addEventListener('change', toggleInputMode);
+        latestModeRadio.addEventListener('change', toggleInputMode);
+    }
+
+    // --- Event Listener for Recommendation Form ---
+    if (recommendationForm) {
+        recommendationForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            console.log('Recommendation form submitted.');
+
+            recommendationsOutput.innerHTML = '';
+            loadingMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+            if (noRecommendationsMessage) noRecommendationsMessage.style.display = 'none';
+
+            let fbsLevel = null;
+            let rbsLevel = null;
+
+            // Check which input mode is selected
+            const useLatestReadings = latestModeRadio && latestModeRadio.checked;
+
+            if (useLatestReadings) {
+                // Use selected reading
+                if (!selectedReading) {
+                    errorMessage.textContent = 'Please select a reading from your latest readings.';
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+
+                const mealContext = selectedReading.meal_context.toLowerCase();
+                if (mealContext === 'fasting') {
+                    fbsLevel = parseFloat(selectedReading.value);
+                } else {
+                    rbsLevel = parseFloat(selectedReading.value);
+                }
+
+                console.log('Using selected reading:', selectedReading);
+                console.log('FBS:', fbsLevel, 'RBS:', rbsLevel);
+            } else {
+                // Use manual input
+                fbsLevel = fbsLevelInput && fbsLevelInput.value ? parseFloat(fbsLevelInput.value) : null;
+                rbsLevel = rbsLevelInput && rbsLevelInput.value ? parseFloat(rbsLevelInput.value) : null;
+            }
+
+            const mealType = mealTypeSelect.value;
+            const numAlternativesPerSlot = parseInt(numAlternativesInput.value);
+
+            if (fbsLevel === null && rbsLevel === null) {
+                errorMessage.textContent = "Please enter at least one blood sugar level (FBS or RBS).";
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            loadingMessage.style.display = 'block';
+
+            try {
+                // Build query parameters
+                const params = new URLSearchParams({
+                    meal_type: mealType,
+                    num_alternatives_per_slot: numAlternativesPerSlot
+                });
+
+                if (fbsLevel !== null) {
+                    params.append('fbs_level', fbsLevel);
+                }
+                if (rbsLevel !== null) {
+                    params.append('rbs_level', rbsLevel);
+                }
+
+                const apiUrl = `${API_BASE_URL}/recommend_meal?${params.toString()}`;
+                console.log('Fetching recommendations from:', apiUrl);
+
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+                }
+
+                const recommendations = await response.json();
+                console.log('Recommendations received:', recommendations);
+
+                loadingMessage.style.display = 'none';
+
+                if (recommendations && recommendations.length > 0) {
+                    // Display recommendations with enhanced styling
+                    recommendationsOutput.innerHTML = `
+                        <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Your Personalized Meal Recommendations</h3>
+                        <div style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--border-radius); margin-bottom: 1rem;">
+                            <strong>Based on:</strong> 
+                            ${fbsLevel ? `FBS: ${fbsLevel} mg/dL` : ''} 
+                            ${fbsLevel && rbsLevel ? ' | ' : ''}
+                            ${rbsLevel ? `RBS: ${rbsLevel} mg/dL` : ''}
+                            <br>
+                            <strong>Meal Type:</strong> ${mealType.charAt(0).toUpperCase() + mealType.slice(1)}
+                        </div>
+                        <ul style="list-style: none; display: grid; gap: 1rem;">
+                            ${recommendations.map(food => `
+                                <li style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--border-radius); border-left: 4px solid var(--primary-color); display: flex; align-items: center; gap: 1rem;">
+                                    <i class="fas fa-check-circle" style="color: var(--primary-color); font-size: 1.2rem;"></i>
+                                    <span>${food}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    `;
+                } else {
+                    if (noRecommendationsMessage) {
+                        noRecommendationsMessage.style.display = 'block';
+                    } else {
+                        errorMessage.textContent = "No recommendations found. Please try different values.";
+                        errorMessage.style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                loadingMessage.style.display = 'none';
+                errorMessage.textContent = `Error: ${error.message}`;
+                errorMessage.style.display = 'block';
+                console.error('Fetch error:', error);
+            }
+        });
+    }
 
     // --- Star Rating Logic for Feedback Form ---
     let currentRating = 0;
@@ -246,11 +357,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                // For local testing:
-                //const API_BASE_URL = "http://127.0.0.1:8000";
-                // For live deployment:
-                const API_BASE_URL = "https://nutriapp-backend-mnnq.onrender.com";
-
                 const apiUrl = `${API_BASE_URL}/submit_feedback`;
                 console.log('Submitting feedback to:', apiUrl);
 

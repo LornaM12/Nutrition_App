@@ -13,31 +13,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /**
  * Checks for a user ID in localStorage to determine login status.
- * Updates the UI accordingly (hiding/showing auth buttons or user dropdown).
+ * Updates the UI accordingly (hiding/showing auth buttons or logout button).
  */
 function checkLoginStatus() {
     const userId = localStorage.getItem('user_id');
     const authButtons = document.getElementById('authButtons');
-    const userDropdown = document.getElementById('userDropdown');
-    const userProfileBtn = document.querySelector('.user-profile-btn');
+    const logoutBtn = document.getElementById('logoutBtn');
 
     if (userId) {
         // User is logged in
         console.log('User is logged in. User ID:', userId);
         if (authButtons) authButtons.style.display = 'none';
-        if (userDropdown) {
-            userDropdown.style.display = 'block';
-            if (userProfileBtn) {
-                // You can get the username from localStorage if you store it
-                // For now, let's just show a generic "Hi, User!"
-                userProfileBtn.innerHTML = '<i class="fas fa-user-circle"></i> Hi, User!';
-            }
-        }
+        if (logoutBtn) logoutBtn.style.display = 'flex'; // Show logout button
     } else {
         // User is not logged in
         console.log('User is not logged in.');
         if (authButtons) authButtons.style.display = 'flex';
-        if (userDropdown) userDropdown.style.display = 'none';
+        if (logoutBtn) logoutBtn.style.display = 'none'; // Hide logout button
     }
 }
 
