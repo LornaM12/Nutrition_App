@@ -7,8 +7,8 @@ if (!userId) {
 
 // Configuration for API endpoint
 const API_CONFIG = {
-    baseUrl: 'http://localhost:8000', 
-    //baseUrl: 'https://nutriapp-backend-mnnq.onrender.com',
+    //baseUrl: 'http://localhost:8000', 
+    baseUrl: 'https://nutriapp-backend-mnnq.onrender.com',
     endpoints: {
         sugarReadings: '/api/sugar-readings',
         waterIntake: '/api/water-intake',
