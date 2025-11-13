@@ -1184,7 +1184,21 @@
                     </div>
 
                     <!-- Quick Tips and Recent Readings (Side by Side) -->
+                    <!-- Recent Readings and Quick Tips (Side by Side) -->
                     <div class="tips-readings-grid">
+                        <!-- Recent Readings -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Recent Readings</h3>
+                                <div class="card-icon" style="background: var(--accent-color); color: white;">
+                                    <i class="fas fa-history"></i>
+                                </div>
+                            </div>
+                            <div class="readings-list" id="recentReadingsList">
+                                <!-- Readings will be loaded dynamically -->
+                            </div>
+                        </div>
+
                         <!-- Quick Tips for You -->
                         <div class="card">
                             <div class="card-header">
@@ -1221,19 +1235,6 @@
                                         <p>Your readings are typically higher in the evening. Consider an earlier dinner.</p>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- Recent Readings -->
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">Recent Readings</h3>
-                                <div class="card-icon" style="background: var(--accent-color); color: white;">
-                                    <i class="fas fa-history"></i>
-                                </div>
-                            </div>
-                            <div class="readings-list" id="recentReadingsList">
-                                <!-- Readings will be loaded dynamically -->
                             </div>
                         </div>
                     </div>
