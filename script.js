@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/sugar-readings?user_id=${userId}&limit=3`);
+            const response = await fetch(`${API_BASE_URL}/api/Loggedsugar-readings?user_id=${userId}&limit=3`);
             if (!response.ok) throw new Error('Failed to fetch readings');
             
             const readings = await response.json();

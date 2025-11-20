@@ -1,4 +1,4 @@
-// auth.js
+// logout.js
 
 document.addEventListener('DOMContentLoaded', () => {
     // Check if the user is logged in on page load

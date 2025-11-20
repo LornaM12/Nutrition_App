@@ -5,10 +5,14 @@ if (!userId) {
     window.location.href = "login.html";
 }
 
-// Configuration for API endpoint
+// Configuration for API endpoints
 const API_CONFIG = {
+    // For local deployment
     //baseUrl: 'http://localhost:8000', 
-    baseUrl: 'https://nutriapp-backend-mnnq.onrender.com',
+
+    // Live deployment
+    baseUrl: "https://nutriapp-backend-mnnq.onrender.com",
+
     endpoints: {
         sugarReadings: '/api/sugar-readings',
         waterIntake: '/api/water-intake',
@@ -18,274 +22,203 @@ const API_CONFIG = {
     }
 };
 
-// Populate dashboard immediately after login
-function populateDashboard(userData) {
-    // Greeting
-    document.querySelector(".user-name").textContent = userData.username || "User";
-    document.querySelector(".welcome-title").textContent = `Good morning, ${userData.username || "User"}!`;
-
-    // Last stats (handle blanks for new users)
-    const stats = userData.last_stats || {};
-
-    document.getElementById("currentReading").textContent = stats.current_reading ?? "--";
-    document.getElementById("mainSugarReading").innerHTML = 
-        stats.current_reading ? `${stats.current_reading}<span class="sugar-unit">mg/dL</span>` : "--";
-
-    document.querySelector(".quick-stats .stat-item:nth-child(2) .stat-value").textContent = 
-        stats.avg_a1c ? `${stats.avg_a1c}%` : "--";
-
-    document.querySelector(".quick-stats .stat-item:nth-child(3) .stat-value").textContent = 
-        stats.in_range ? `${stats.in_range}%` : "--";
-
-    document.querySelector(".quick-stats .stat-item:nth-child(4) .stat-value").textContent = 
-        stats.streak ? stats.streak : "--";
-
-    // Status indicator (basic example)
-    if (stats.current_reading) {
-        let statusText = "Normal";
-        let statusClass = "status-normal";
-        if (stats.current_reading > 180) {
-            statusText = "High";
-            statusClass = "status-high";
-        } else if (stats.current_reading < 70) {
-            statusText = "Low";
-            statusClass = "status-low";
-        }
-        const statusIndicator = document.getElementById("statusIndicator");
-        statusIndicator.className = `status-indicator ${statusClass}`;
-        statusIndicator.innerHTML = `<i class="fas fa-check-circle"></i> ${statusText}`;
-    } else {
-        document.getElementById("statusIndicator").innerHTML = "--";
-    }
-}
-
 // Global variables
 let currentModal = null;
 let sugarTrendChart = null;
 let weeklyChart = null;
 
-// API Helper functions
+// --- API Helper ---
 async function makeAPICall(endpoint, method = 'GET', data = null) {
     const url = `${API_CONFIG.baseUrl}${endpoint}`;
     const options = {
         method: method,
-        headers: {
-            'Content-Type': 'application/json',
-        }
+        headers: { 'Content-Type': 'application/json' }
     };
-
-    if (data && method !== 'GET') {
-        options.body = JSON.stringify(data);
-    }
-
+    if (data && method !== 'GET') options.body = JSON.stringify(data);
     try {
         const response = await fetch(url, options);
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return await response.json();
     } catch (error) {
         console.error('API call failed:', error);
-        showNotification('Connection error. Please try again.', 'error');
+        // Optional: showNotification('Connection error', 'error');
         throw error;
     }
 }
 
-// Load dashboard data from API
+// --- Data Loading ---
 async function loadDashboardData() {
     try {
         const userId = localStorage.getItem("user_id");
         const data = await makeAPICall(`${API_CONFIG.endpoints.getDashboardData}?user_id=${userId}`);
         updateDashboardUI(data);
     } catch (error) {
-        console.error('Failed to load dashboard data:', error);
+        console.error("Error loading dashboard:", error);
         loadFallbackData();
     }
 }
 
-// Load recent readings
 async function loadRecentReadings() {
     try {
         const userId = localStorage.getItem("user_id");
-        const readings = await makeAPICall(
-            `${API_CONFIG.endpoints.getReadings}?user_id=${userId}&limit=5`
-        );
+        const readings = await makeAPICall(`${API_CONFIG.endpoints.getReadings}?user_id=${userId}&limit=5`);
         updateRecentReadingsList(readings);
     } catch (error) {
-        console.error('Failed to load recent readings:', error);
         updateRecentReadingsList([]);
     }
 }
 
-// Update recent readings list
-function updateRecentReadingsList(readings) {
-    const readingsList = document.getElementById('recentReadingsList');
-
-    if (!readings || readings.length === 0) {
-        readingsList.innerHTML = `
-            <div class="reading-item">
-                <span class="reading-time">No readings yet</span>
-                <span class="reading-value">-- mg/dL</span>
-            </div>
-        `;
-        return;
-    }
-
-    readingsList.innerHTML = readings.map(reading => {
-        const date = new Date(reading.timestamp);
-        const timeStr = date.toLocaleDateString() === new Date().toLocaleDateString()
-            ? `Today ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`
-            : date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-        const colorClass = getReadingColor(reading.value);
-
-        return `
-            <div class="reading-item">
-                <span class="reading-time">${timeStr}</span>
-                <span class="reading-value" style="color: var(--${colorClass}-color);">${reading.value} mg/dL</span>
-            </div>
-        `;
-    }).join('');
+function populateDashboard(userData) {
+    document.querySelector(".user-name").textContent = userData.username || "User";
+    document.querySelector(".welcome-title").textContent = `Good morning, ${userData.username || "User"}!`;
 }
 
-// Determine color based on blood sugar reading
-function getReadingColor(value) {
-    if (value < 70 || value > 180) return 'error';
-    if (value < 80 || value > 140) return 'warning';
-    return 'success';
-}
-
-// Update dashboard UI with loaded data
+// --- UI Updates ---
 function updateDashboardUI(data) {
+    // 1. Current Reading & Status
     if (data.currentReading) {
-        const currentElement = document.getElementById('currentReading');
-        const mainReadingElement = document.getElementById('mainSugarReading');
-        const statusElement = document.getElementById('statusIndicator');
+        const val = data.currentReading.value;
+        const mainEl = document.getElementById('mainSugarReading');
+        const statusEl = document.getElementById('statusIndicator');
+        const quickEl = document.getElementById('currentReading');
 
-        if (currentElement) currentElement.textContent = data.currentReading.value;
-        if (mainReadingElement) {
-            const colorClass = getReadingColor(data.currentReading.value);
-            mainReadingElement.innerHTML = `${data.currentReading.value}<span class="sugar-unit" style="font-size: 0.8rem;">mg/dL</span>`;
-            mainReadingElement.style.color = `var(--${colorClass}-color)`;
+        if (quickEl) quickEl.textContent = val;
 
-            // Update status indicator
-            const statusText = data.currentReading.value < 70 || data.currentReading.value > 180 ? 'High Risk' :
-                             data.currentReading.value < 80 || data.currentReading.value > 140 ? 'Warning' : 'Normal';
-            const statusIcon = statusText === 'Normal' ? 'fa-check-circle' :
-                              statusText === 'Warning' ? 'fa-exclamation-triangle' : 'fa-times-circle';
-            const statusClass = statusText === 'Normal' ? 'status-normal' :
-                               statusText === 'Warning' ? 'status-warning' : 'status-danger';
+        if (mainEl) {
+            const colorClass = getReadingColor(val);
+            mainEl.innerHTML = `${val}<span class="sugar-unit">mg/dL</span>`;
+            mainEl.style.color = `var(--${colorClass}-color)`;
+            
+            let statusText = 'Normal';
+            let statusIcon = 'fa-check-circle';
+            let statusCss = 'status-normal';
+            
+            if (val < 70) { statusText = 'Low'; statusIcon = 'fa-arrow-down'; statusCss = 'status-warning'; }
+            else if (val > 180) { statusText = 'High'; statusIcon = 'fa-exclamation-circle'; statusCss = 'status-danger'; }
 
-            statusElement.className = `status-indicator ${statusClass}`;
-            statusElement.innerHTML = `<i class="fas ${statusIcon}"></i> ${statusText}`;
+            statusEl.className = `status-indicator ${statusCss}`;
+            statusEl.innerHTML = `<i class="fas ${statusIcon}"></i> ${statusText}`;
         }
     }
 
-    // Update progress bars
-    if (data.todaysGoals) {
-        updateProgressBars(data.todaysGoals);
+    // --- NEW: Update "In Range" Percentage Text ---
+    if (data.chartData && data.chartData.weeklyOverview && data.chartData.weeklyOverview.data) {
+        const weeklyData = data.chartData.weeklyOverview.data;
+        const inRangeEl = document.getElementById('inRangeValue');
+        
+        if (inRangeEl) {
+            // Calculate total to see if we have data
+            const total = weeklyData.reduce((a, b) => a + b, 0);
+            
+            if (total === 0) {
+                inRangeEl.textContent = "--%";
+            } else {
+                // The API sends [Range, High, Low], so Index 0 is Range
+                inRangeEl.textContent = `${weeklyData[0]}%`;
+            }
+        }
     }
 
-    // Update charts
+    // 2. Update Progress Bars
+    if (data.todaysGoals) {
+        updateProgressBar('readings', data.todaysGoals.readings);
+        updateProgressBar('water', data.todaysGoals.water);
+        updateProgressBar('exercise', data.todaysGoals.exercise);
+    }
+
+    // 3. Update Charts
     if (data.chartData) {
         updateCharts(data.chartData);
     }
 }
 
-// Update progress bars
-function updateProgressBars(goals) {
-    const elements = {
-        readings: { progress: 'readingsProgress', bar: 'readingsProgressBar' },
-        water: { progress: 'waterProgress', bar: 'waterProgressBar' },
-        exercise: { progress: 'exerciseProgress', bar: 'exerciseProgressBar' }
-    };
+    
 
-    Object.keys(elements).forEach(key => {
-        if (goals[key]) {
-            const progressEl = document.getElementById(elements[key].progress);
-            const barEl = document.getElementById(elements[key].bar);
+function updateProgressBar(type, data) {
+    const barId = `${type}ProgressBar`;
+    const textId = `${type}Progress`;
+    const bar = document.getElementById(barId);
+    const text = document.getElementById(textId);
 
-            if (progressEl && barEl) {
-                progressEl.textContent = `${goals[key].current}/${goals[key].target} ${goals[key].unit || ''}`;
-                const percentage = (goals[key].current / goals[key].target) * 100;
-                barEl.style.width = `${Math.min(percentage, 100)}%`;
-            }
-        }
-    });
+    if (bar && text && data) {
+        const pct = Math.min((data.current / data.target) * 100, 100);
+        bar.style.width = `${pct}%`;
+        text.textContent = `${data.current}/${data.target} ${data.unit}`;
+    }
 }
 
-// Initialize charts
-function initCharts() {
-    // Sugar Trend Chart
-    const ctx1 = document.getElementById('sugarTrendChart');
+function updateRecentReadingsList(readings) {
+    const list = document.getElementById('recentReadingsList');
+    if (!list) return;
+    
+    if (!readings || readings.length === 0) {
+        list.innerHTML = `<div class="reading-item"><span>No readings yet</span><span>--</span></div>`;
+        return;
+    }
+
+    list.innerHTML = readings.map(r => {
+        const date = new Date(r.timestamp);
+        const timeStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        const color = getReadingColor(r.value);
+        return `
+            <div class="reading-item">
+                <span class="reading-time">${timeStr}</span>
+                <span class="reading-value" style="color: var(--${color}-color); font-weight:bold;">
+                    ${r.value} mg/dL
+                </span>
+            </div>
+        `;
+    }).join('');
+}
+
+function getReadingColor(val) {
+    if (val < 70) return 'warning';
+    if (val > 180) return 'error';
+    return 'success';
+}
+
+// --- CHART LOGIC ---
+
+async function initCharts() {
+    // Destroy old instances if they exist (prevents hover glitches)
+    if (sugarTrendChart) sugarTrendChart.destroy();
+    if (weeklyChart) weeklyChart.destroy();
+
+    const ctx1 = document.getElementById('sugarTrendChart')?.getContext('2d');
+    const ctx2 = document.getElementById('weeklyChart')?.getContext('2d');
+
     if (ctx1) {
-        sugarTrendChart = new Chart(ctx1.getContext('2d'), {
+        sugarTrendChart = new Chart(ctx1, {
             type: 'line',
             data: {
-                labels: ['Jul 15', 'Jul 16', 'Jul 17', 'Jul 18', 'Jul 19', 'Jul 20', 'Today'],
+                labels: [],
                 datasets: [{
                     label: 'Blood Sugar',
-                    data: [125, 118, 132, 128, 135, 122, 127],
+                    data: [],
                     borderColor: '#FF8C42',
                     backgroundColor: 'rgba(255, 140, 66, 0.1)',
                     borderWidth: 3,
                     fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: '#FF8C42',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 6
+                    tension: 0.4
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        min: 80,
-                        max: 180,
-                        grid: {
-                            color: 'rgba(78, 205, 196, 0.1)'
-                        },
-                        ticks: {
-                            callback: function(value) {
-                                return value + ' mg/dL';
-                            }
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                },
-                elements: {
-                    point: {
-                        hoverRadius: 8
-                    }
-                }
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: false }, x: { grid: { display: false } } }
             }
         });
     }
 
-    // Weekly Overview Chart
-    const ctx2 = document.getElementById('weeklyChart');
     if (ctx2) {
-        weeklyChart = new Chart(ctx2.getContext('2d'), {
+        weeklyChart = new Chart(ctx2, {
             type: 'doughnut',
             data: {
-                labels: ['In Range', 'Above Range', 'Below Range'],
+                labels: ['No Data'],
                 datasets: [{
-                    data: [85, 12, 3],
-                    backgroundColor: ['#48BB78', '#ECC94B', '#E53E3E'],
+                    data: [1],
+                    backgroundColor: ['#E2E8F0'],
                     borderWidth: 0,
                     cutout: '70%'
                 }]
@@ -294,379 +227,167 @@ function initCharts() {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 20,
-                            usePointStyle: true,
-                            font: {
-                                size: 12
-                            }
-                        }
-                    }
+                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } },
+                    tooltip: { enabled: false }
                 }
             }
         });
     }
 }
 
-// Update charts with new data
 function updateCharts(chartData) {
-    if (chartData.sugarTrend && sugarTrendChart) {
+    // Update Sugar Trend
+    if (sugarTrendChart && chartData.sugarTrend) {
         sugarTrendChart.data.labels = chartData.sugarTrend.labels;
-        sugarTrendChart.data.datasets[0].data = chartData.sugarTrend.data;
+        sugarTrendChart.data.datasets[0].data = chartData.sugarTrend.values;
         sugarTrendChart.update();
     }
 
-    if (chartData.weeklyOverview && weeklyChart) {
-        weeklyChart.data.datasets[0].data = chartData.weeklyOverview.data;
+    // Update Weekly Overview
+    if (weeklyChart && chartData.weeklyOverview) {
+        const rawData = chartData.weeklyOverview.data; // Expecting [Range, High, Low]
+        const total = rawData.reduce((a,b) => a+b, 0);
+
+        if (total === 0) {
+            // Empty State
+            weeklyChart.data.datasets[0].data = [1];
+            weeklyChart.data.datasets[0].backgroundColor = ['#E2E8F0'];
+            weeklyChart.data.labels = ['No Data'];
+            weeklyChart.options.plugins.tooltip.enabled = false;
+        } else {
+            // Data State
+            weeklyChart.data.datasets[0].data = rawData;
+            // API Order is [Range, High, Low] -> Map to [Green, Red, Yellow]
+            weeklyChart.data.datasets[0].backgroundColor = ['#48BB78', '#E53E3E', '#ECC94B'];
+            weeklyChart.data.labels = ['In Range', 'High', 'Low'];
+            weeklyChart.options.plugins.tooltip.enabled = true;
+        }
         weeklyChart.update();
     }
 }
 
-// Fallback data when API is not available
 function loadFallbackData() {
-    const fallbackData = {
-        currentReading: { value: 127, timestamp: new Date() },
-        todaysGoals: {
-            readings: { current: 3, target: 4, unit: '' },
-            water: { current: 6, target: 8, unit: 'cups' },
-            exercise: { current: 22, target: 30, unit: 'min' }
+    // In case API fails completely
+    updateDashboardUI({
+        currentReading: { value: '--' },
+        todaysGoals: { 
+            readings: { current:0, target:4, unit:'' },
+            water: { current:0, target:8, unit:'cups' },
+            exercise: { current:0, target:30, unit:'min' }
+        },
+        chartData: {
+            sugarTrend: { labels: [], values: [] },
+            weeklyOverview: { data: [0,0,0] }
         }
-    };
-    updateDashboardUI(fallbackData);
+    });
 }
 
-// Modal functions
+// --- Modals & Forms ---
+
 function openModal(type) {
-    const modals = {
-        'sugar': 'sugarModal',
-        'water': 'waterModal',
-        'exercise': 'exerciseModal'
-    };
-
-    const modalId = modals[type];
-    if (!modalId) return;
-
-    const modal = document.getElementById(modalId);
-    currentModal = modalId;
-
-    // Set current date and time
-    const now = new Date();
-    const localDateTime = now.getFullYear() + '-' +
-        String(now.getMonth() + 1).padStart(2, '0') + '-' +
-        String(now.getDate()).padStart(2, '0') + 'T' +
-        String(now.getHours()).padStart(2, '0') + ':' +
-        String(now.getMinutes()).padStart(2, '0');
-
-    // Set time inputs based on modal type
-    if (type === 'sugar') {
-        document.getElementById('sugarTime').value = localDateTime;
-    } else if (type === 'water') {
-        document.getElementById('waterTime').value = localDateTime;
-    } else if (type === 'exercise') {
-        document.getElementById('exerciseTime').value = localDateTime;
+    const map = { 'sugar': 'sugarModal', 'water': 'waterModal', 'exercise': 'exerciseModal' };
+    const id = map[type];
+    if (id) {
+        document.getElementById(id).style.display = 'flex';
+        currentModal = id;
+        
+        // Set current time
+        const now = new Date();
+        const iso = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+        const timeInput = document.getElementById(type + 'Time');
+        if (timeInput) timeInput.value = iso;
     }
-
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
 }
 
 function closeModal() {
     if (currentModal) {
-        const modal = document.getElementById(currentModal);
-        modal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-
-        // Reset forms and buttons
-        const form = modal.querySelector('form');
-        if (form) form.reset();
-
-        // Reset submit buttons
-        const submitBtns = ['sugarSubmitBtn', 'waterSubmitBtn', 'exerciseSubmitBtn'];
-        submitBtns.forEach(btnId => {
-            const btn = document.getElementById(btnId);
-            if (btn) {
-                btn.disabled = false;
-                btn.innerHTML = btn.innerHTML.replace('<div class="loading-spinner"></div>', '');
-            }
+        document.getElementById(currentModal).style.display = 'none';
+        currentModal = null;
+        // Reset buttons
+        document.querySelectorAll('.btn-primary').forEach(b => {
+            b.disabled = false;
+            if(b.innerText === 'Saving...') b.innerText = 'Save';
         });
     }
-    currentModal = null;
 }
 
-// Show loading state on button
-function setButtonLoading(buttonId, loading = true) {
-    const button = document.getElementById(buttonId);
-    if (!button) return;
+// Form Listeners
+function setupForms() {
+    document.getElementById('sugarForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('sugarSubmitBtn');
+        btn.innerText = 'Saving...'; btn.disabled = true;
 
-    if (loading) {
-        button.disabled = true;
-        button.innerHTML = '<div class="loading-spinner"></div> Saving...';
-    } else {
-        button.disabled = false;
-        // Reset to original text
-        const originalTexts = {
-            'sugarSubmitBtn': 'Save Reading',
-            'waterSubmitBtn': 'Save Intake',
-            'exerciseSubmitBtn': 'Save Exercise'
+        const data = {
+            value: parseFloat(document.getElementById('sugarReading').value),
+            timestamp: document.getElementById('sugarTime').value,
+            meal_context: document.getElementById('mealType').value,
+            user_id: userId
         };
-        button.innerHTML = originalTexts[buttonId] || 'Save';
-    }
-}
 
-// Handle form submissions
-document.addEventListener('DOMContentLoaded', function() {
-    // Sugar Form
-    const sugarForm = document.getElementById('sugarForm');
-    if (sugarForm) {
-        sugarForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            setButtonLoading('sugarSubmitBtn', true);
-
-            const formData = {
-                value: parseFloat(document.getElementById('sugarReading').value),
-                timestamp: document.getElementById('sugarTime').value,
-                meal_context: document.getElementById('mealType').value,
-                user_id: userId
-            };
-
-            try {
-                await makeAPICall(API_CONFIG.endpoints.sugarReadings, 'POST', formData);
-                showNotification(`Blood sugar reading of ${formData.value} mg/dL saved successfully!`, 'success');
-                closeModal();
-
-                // Refresh dashboard data
-                await loadDashboardData();
-                await loadRecentReadings();
-
-            } catch (error) {
-                console.error('Failed to save sugar reading:', error);
-                showNotification('Failed to save reading. Please try again.', 'error');
-            } finally {
-                setButtonLoading('sugarSubmitBtn', false);
-            }
-        });
-    }
-
-    // Water Form
-    const waterForm = document.getElementById('waterForm');
-    if (waterForm) {
-        waterForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            setButtonLoading('waterSubmitBtn', true);
-
-            const formData = {
-                amount: parseFloat(document.getElementById('waterAmount').value),
-                unit: document.getElementById('waterUnit').value,
-                timestamp: document.getElementById('waterTime').value,
-                source: document.getElementById('waterSource').value || null,
-                user_id: userId
-            };
-
-            try {
-                await makeAPICall(API_CONFIG.endpoints.waterIntake, 'POST', formData);
-                showNotification(`Water intake of ${formData.amount} ${formData.unit} saved successfully!`, 'success');
-                closeModal();
-
-                // Refresh dashboard data
-                await loadDashboardData();
-
-            } catch (error) {
-                console.error('Failed to save water intake:', error);
-                showNotification('Failed to save water intake. Please try again.', 'error');
-            } finally {
-                setButtonLoading('waterSubmitBtn', false);
-            }
-        });
-    }
-
-    // Exercise Form
-    const exerciseForm = document.getElementById('exerciseForm');
-    if (exerciseForm) {
-        exerciseForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            setButtonLoading('exerciseSubmitBtn', true);
-
-            const formData = {
-                exercise_type: document.getElementById('exerciseType').value,
-                duration_minutes: parseInt(document.getElementById('exerciseDuration').value),
-                intensity: document.getElementById('exerciseIntensity').value,
-                timestamp: document.getElementById('exerciseTime').value,
-                notes: document.getElementById('exerciseNotes').value || null,
-                user_id: userId
-            };
-
-            try {
-                await makeAPICall(API_CONFIG.endpoints.exercise, 'POST', formData);
-                showNotification(`${formData.exercise_type} exercise (${formData.duration_minutes} min) saved successfully!`, 'success');
-                closeModal();
-
-                // Refresh dashboard data
-                await loadDashboardData();
-
-            } catch (error) {
-                console.error('Failed to save exercise:', error);
-                showNotification('Failed to save exercise. Please try again.', 'error');
-            } finally {
-                setButtonLoading('exerciseSubmitBtn', false);
-            }
-        });
-    }
-});
-
-// Close modal when clicking outside
-document.querySelectorAll('.modal-overlay').forEach(modal => {
-    modal.addEventListener('click', function(e) {
-        if (e.target === this) {
+        try {
+            await makeAPICall(API_CONFIG.endpoints.sugarReadings, 'POST', data);
             closeModal();
-        }
+            await loadDashboardData();
+            await loadRecentReadings();
+        } catch (e) { alert("Failed to save reading"); }
+        btn.innerText = 'Save'; btn.disabled = false;
     });
-});
 
-// Notification system
-function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.innerHTML = `
-        <i class="fas ${type === 'success' ? 'fa-check-circle' :
-                      type === 'error' ? 'fa-times-circle' : 'fa-info-circle'}"></i>
-        <span>${message}</span>
-    `;
+    document.getElementById('waterForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('waterSubmitBtn');
+        btn.innerText = 'Saving...'; btn.disabled = true;
 
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${type === 'success' ? '#48BB78' :
-                     type === 'error' ? '#E53E3E' : '#4ECDC4'};
-        color: white;
-        padding: 1rem 1.5rem;
-        border-radius: 16px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        z-index: 1001;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-weight: 600;
-        transform: translateX(100%);
-        transition: transform 0.3s ease-out;
-        max-width: 350px;
-    `;
+        const data = {
+            amount: parseFloat(document.getElementById('waterAmount').value),
+            unit: document.getElementById('waterUnit').value,
+            timestamp: document.getElementById('waterTime').value,
+            user_id: userId
+        };
 
-    document.body.appendChild(notification);
+        try {
+            await makeAPICall(API_CONFIG.endpoints.waterIntake, 'POST', data);
+            closeModal();
+            await loadDashboardData();
+        } catch (e) { alert("Failed to save water"); }
+        btn.innerText = 'Save'; btn.disabled = false;
+    });
 
-    setTimeout(() => {
-        notification.style.transform = 'translateX(0)';
-    }, 100);
+    document.getElementById('exerciseForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('exerciseSubmitBtn');
+        btn.innerText = 'Saving...'; btn.disabled = true;
 
-    setTimeout(() => {
-        notification.style.transform = 'translateX(100%)';
-        setTimeout(() => {
-            if (document.body.contains(notification)) {
-                document.body.removeChild(notification);
-            }
-        }, 300);
-    }, 3000);
+        const data = {
+            exercise_type: document.getElementById('exerciseType').value,
+            duration_minutes: parseInt(document.getElementById('exerciseDuration').value),
+            intensity: document.getElementById('exerciseIntensity').value,
+            timestamp: document.getElementById('exerciseTime').value,
+            user_id: userId
+        };
+
+        try {
+            await makeAPICall(API_CONFIG.endpoints.exercise, 'POST', data);
+            closeModal();
+            await loadDashboardData();
+        } catch (e) { alert("Failed to save exercise"); }
+        btn.innerText = 'Save'; btn.disabled = false;
+    });
 }
 
-// Initialize dashboard
+// Close modals on outside click
+document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', (e) => { if (e.target === m) closeModal(); });
+});
+
+// --- Initialization ---
 document.addEventListener('DOMContentLoaded', async function() {
     const userData = JSON.parse(localStorage.getItem("userData"));
-    if (userData) {
-        populateDashboard(userData);
-    }
+    if (userData) populateDashboard(userData);
 
-    initCharts();
-
-    // Load data from API
-    await loadDashboardData();
+    await initCharts(); // Create empty charts first
+    setupForms();       // Attach event listeners
+    await loadDashboardData(); // Fetch real data
     await loadRecentReadings();
-
-    // Animate progress bars
-    setTimeout(() => {
-        const progressBars = document.querySelectorAll('.progress-fill');
-        progressBars.forEach(bar => {
-            const width = bar.style.width;
-            bar.style.width = '0%';
-            setTimeout(() => {
-                bar.style.width = width;
-            }, 100);
-        });
-    }, 500);
-
-    // Add greeting based on time of day
-    const hour = new Date().getHours();
-    const welcomeTitle = document.querySelector('.welcome-title');
-    let greeting = 'Good morning';
-
-    if (hour >= 12 && hour < 17) {
-        greeting = 'Good afternoon';
-    } else if (hour >= 17) {
-        greeting = 'Good evening';
-    }
-
-    const username = localStorage.getItem('username') || 'User';
-    if (welcomeTitle) {
-        welcomeTitle.textContent = `${greeting}, ${username}!`;
-    }
 });
-
-// Add keyboard shortcuts
-document.addEventListener('keydown', function(e) {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
-        e.preventDefault();
-        openModal('sugar');
-    }
-
-    if ((e.ctrlKey || e.metaKey) && e.key === 'w') {
-        e.preventDefault();
-        openModal('water');
-    }
-
-    if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
-        e.preventDefault();
-        openModal('exercise');
-    }
-
-    if (e.key === 'Escape' && currentModal) {
-        closeModal();
-    }
-});
-
-// Enhanced form validation
-const sugarReadingInput = document.getElementById('sugarReading');
-if (sugarReadingInput) {
-    sugarReadingInput.addEventListener('input', function(e) {
-        const value = parseInt(e.target.value);
-        const inputGroup = e.target.closest('.input-group');
-
-        const existingMsg = inputGroup.querySelector('.validation-message');
-        if (existingMsg) {
-            existingMsg.remove();
-        }
-
-        if (value && (value < 50 || value > 400)) {
-            const message = document.createElement('div');
-            message.className = 'validation-message';
-            message.style.cssText = `
-                color: #E53E3E;
-                font-size: 0.8rem;
-                margin-top: 0.25rem;
-                display: flex;
-                align-items: center;
-                gap: 0.25rem;
-            `;
-            message.innerHTML = `
-                <i class="fas fa-exclamation-triangle"></i>
-                Reading should be between 50-400 mg/dL
-            `;
-            inputGroup.appendChild(message);
-        }
-    });
-}
-
-// Periodic data refresh (every 5 minutes)
-setInterval(async () => {
-    await loadRecentReadings();
-}, 5 * 60 * 1000);
